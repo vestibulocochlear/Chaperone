@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html{color-scheme:dark}body{margin:0}</style>
+<title>Chaperone ชาเปอโรน</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500;700&family=Prompt:wght@600&display=swap">
+<style>
+/* Layout: one-screen app. Home = round + play on the left, deck builder on the right. Play = giant word on the accent colour, tap bars at the foot. Colours are user-editable: four menu colours plus four in-game colours, all set as variables on :root. */
+:root{
+  --c1:#1d0e07;          /* Color 1: menu background */
+  --c2:#2c170d;          /* Color 2: panels and buttons */
+  --c3:#fff3e3;          /* Color 3: menu text */
+  --c4:#f27a1e;          /* Color 4: accent, and the normal in-game background */
+  --okTx:#06240f;        /* in game, correct: text */
+  --okBg:#27b56a;        /* in game, correct: background */
+  --skTx:#fff3e3;        /* in game, skip: text */
+  --skBg:#7d2a18;        /* in game, skip: background */
+  --onAccent:#1d0e07;    /* set by script: whichever of Color 1 / Color 3 reads better on Color 4 */
+  --soft:color-mix(in srgb,var(--c3) 68%,var(--c1));
+  --btn:color-mix(in srgb,var(--c2) 86%,var(--c3));
+  --line:color-mix(in srgb,var(--c3) 16%,var(--c1));
+  --display:"Bricolage Grotesque","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --body:"DM Sans","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --thai:"Prompt","Sukhumvit Set","Thonburi",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--page,var(--c1));color:var(--c3);font-family:var(--body);font-size:16px;line-height:1.45;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--c4);outline-offset:3px}
+.screen{height:100%;display:flex;flex-direction:column;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* shared pieces */
+h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,7vw,72px);line-height:.95;margin:0;letter-spacing:-.02em}
+h2{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--c4);margin:0 0 10px}
+.thai{font-family:var(--thai);font-weight:600;font-size:clamp(20px,3vw,28px);color:var(--c4)}
+.panel{background:var(--c2);border-radius:14px;padding:18px;min-width:0}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{padding:13px 20px;border-radius:12px;font-weight:700;background:var(--btn)}
+.btn.primary{background:var(--c4);color:var(--onAccent);font-family:var(--display);font-weight:800;font-size:21px;padding:15px 26px}
+.btn.small{padding:8px 13px;font-size:14px;border-radius:9px}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1 1 0;min-width:84px;padding:12px 10px;border-radius:10px;background:var(--btn);font-weight:700;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--c4);color:var(--onAccent)}
+.hint{font-size:14px;color:var(--soft);margin:8px 0 0}
+.status{font-size:14px;color:var(--c4);margin:8px 0 0}
+.status:empty{display:none}
+.field{width:100%;padding:12px 14px;border-radius:10px;border:2px solid var(--line);background:var(--c1);color:var(--c3);font:600 18px var(--body);-webkit-user-select:text;user-select:text}
+textarea.field{min-height:240px;resize:vertical;font-weight:500;line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{padding:8px 13px;border-radius:999px;background:var(--btn);font-size:14px;font-weight:700}
+.chip.op{border-radius:8px;background:transparent;border:2px solid var(--line)}
+details{margin-top:12px}
+summary{cursor:pointer;font-weight:700;color:var(--soft);padding:6px 0}
+details .body{font-size:14px;color:var(--soft);padding-top:6px}
+details code{background:var(--c1);padding:2px 6px;border-radius:6px;color:var(--c3);font-size:13px;-webkit-user-select:text;user-select:text}
+details dl{margin:0;display:grid;grid-template-columns:minmax(0,max-content) minmax(0,1fr);gap:8px 14px}
+details dt{margin:0}
+details dd{margin:0}
+.plist{list-style:none;margin:8px 0 0;padding:0;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.plist li{background:var(--c1);padding:6px 10px;border-radius:8px;color:var(--c3);overflow-wrap:anywhere}
+.plist .tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c4);margin-left:8px}
+
+/* Home */
+.home{overflow-y:auto;padding-block:20px 28px;-webkit-overflow-scrolling:touch}
+.wrap{max-width:1100px;width:100%;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.lede{max-width:52ch;margin:12px 0 20px;color:var(--soft)}
+.home-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:24px;align-items:start}
+@media (max-width:820px){.home-grid{grid-template-columns:minmax(0,1fr)}}
+.zones{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:14px;color:var(--soft);margin:14px 0 0}
+.zones b{color:var(--c3)}
+
+/* Settings */
+.settings{overflow-y:auto;padding-block:20px 28px;-webkit-overflow-scrolling:touch}
+.set-wrap{max-width:760px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.switch{display:inline-flex;align-items:center;gap:12px;font-weight:700}
+.switch i{width:52px;height:30px;border-radius:15px;background:var(--btn);position:relative;transition:background .15s}
+.switch i::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--c3);transition:transform .15s}
+.switch[aria-checked="true"] i{background:var(--c4)}
+.switch[aria-checked="true"] i::after{transform:translateX(22px);background:var(--onAccent)}
+.colors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.colors{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;align-items:center;gap:12px;background:var(--c1);padding:10px 12px;border-radius:12px;min-width:0}
+.col input[type=color]{width:52px;height:44px;border:0;padding:0;background:none;flex:none;border-radius:8px}
+.col span{min-width:0;font-weight:700;line-height:1.25}
+.col small{display:block;font-weight:500;color:var(--soft)}
+.pv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pv div{border-radius:12px;padding:18px 8px;text-align:center;font-family:var(--display);font-weight:800;font-size:clamp(16px,3vw,24px);overflow-wrap:anywhere}
+.pv .n{background:var(--c4);color:var(--onAccent)}
+.pv .g{background:var(--okBg);color:var(--okTx)}
+.pv .s{background:var(--skBg);color:var(--skTx)}
+
+/* Tilt setup */
+.center{align-items:center;justify-content:center;text-align:center;gap:16px;padding-block:20px;overflow-y:auto}
+.big-line{font-family:var(--display);font-weight:800;font-size:clamp(26px,5vw,48px);line-height:1.08;max-width:20ch;margin:0;text-wrap:balance}
+.sub{max-width:46ch;color:var(--soft);margin:0}
+.gaugeRow{display:flex;align-items:center;gap:22px;justify-content:center}
+.gauge{position:relative;width:min(200px,42vw);height:min(280px,36vh);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;flex:none}
+.gauge .z{display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+.gauge .zU{flex:1;background:var(--skBg);color:var(--skTx);align-items:flex-start;padding-top:10px}
+.gauge .zM{flex:2;background:var(--c2);color:var(--c3)}
+.gauge .zD{flex:1;background:var(--okBg);color:var(--okTx);align-items:flex-end;padding-bottom:10px}
+.needle{position:absolute;left:0;right:0;top:50%;height:6px;margin-top:-3px;background:var(--c3);outline:2px solid var(--c1);border-radius:3px}
+.gtext{display:flex;flex-direction:column;gap:4px;text-align:left;min-width:0}
+.deg{font-family:var(--display);font-weight:800;font-size:clamp(40px,8vw,72px);line-height:1;font-variant-numeric:tabular-nums;color:var(--c4)}
+#zoneNow{font-weight:700}
+
+/* Play */
+.play{background:var(--c4);color:var(--onAccent);--pfg:var(--onAccent)}
+.play.good{background:var(--okBg);color:var(--okTx);--pfg:var(--okTx)}
+.play.skip{background:var(--skBg);color:var(--skTx);--pfg:var(--skTx)}
+.hud{display:flex;justify-content:space-between;align-items:center;padding-top:max(14px,env(safe-area-inset-top,0px));font-family:var(--display);font-weight:800}
+.hud .tag{font-size:13px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;display:block;font-family:var(--body);font-weight:700}
+.hud .val{font-size:clamp(34px,6vw,56px);line-height:1;font-variant-numeric:tabular-nums}
+.hud .right{text-align:right}
+.hud .quit{opacity:.7;font:700 13px var(--body);letter-spacing:.1em;text-transform:uppercase;padding:10px 6px}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden}
+.word{display:block;font-family:var(--display);font-weight:800;line-height:1.02;letter-spacing:-.02em;text-align:center;text-wrap:balance;overflow-wrap:normal}
+.word.msg{letter-spacing:.01em}
+.bar{height:6px;background:color-mix(in srgb,var(--pfg) 22%,transparent);border-radius:3px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;width:100%;background:var(--pfg);transform-origin:left}
+.taps{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+.taps button{padding:16px 10px;border-radius:12px;background:color-mix(in srgb,var(--pfg) 16%,transparent);font-weight:700;font-size:15px;letter-spacing:.04em}
+.taps small{display:block;font-weight:500;opacity:.75;letter-spacing:0}
+
+/* Results */
+.results{overflow-y:auto;padding-block:24px;-webkit-overflow-scrolling:touch}
+.res-wrap{max-width:900px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.score{font-family:var(--display);font-weight:800;font-size:clamp(80px,22vw,190px);line-height:.9;color:var(--c4);font-variant-numeric:tabular-nums;margin:0}
+.lists{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:620px){.lists{grid-template-columns:minmax(0,1fr)}}
+.lists ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.lists li{padding:9px 12px;border-radius:9px;background:var(--c1);overflow-wrap:anywhere}
+.lists .ok li{border-left:5px solid var(--okBg)}
+.lists .no li{border-left:5px solid var(--skBg);color:var(--soft)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom,0px));background:var(--c3);color:var(--c1);padding:10px 16px;border-radius:10px;font-weight:700;z-index:20;max-width:90vw;text-align:center}
+@media (prefers-reduced-motion:reduce){.switch i,.switch i::after{transition:none}}
+</style>
+
+<main style="height:100%">
+  <!-- HOME -->
+  <section class="screen home" id="home">
+    <div class="wrap">
+      <header class="top">
+        <div>
+          <div class="brand"><h1>Chaperone</h1><span class="thai" lang="th">ชาเปอโรน</span></div>
+          <p class="lede">Hold the iPad on your forehead while friends describe the word without saying it. Tilt down past 45° when you get it. Tilt up past 45° to skip.</p>
+        </div>
+        <button type="button" class="btn small" id="openSettings">Settings</button>
+      </header>
+      <div class="home-grid">
+        <div class="stack">
+          <div class="panel">
+            <h2>Round length</h2>
+            <div class="seg" id="timerSeg" role="group" aria-label="Round length">
+              <button type="button" data-s="60" aria-pressed="false">60 s</button>
+              <button type="button" data-s="90" aria-pressed="true">90 s</button>
+              <button type="button" data-s="120" aria-pressed="false">120 s</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Play</h2>
+            <div class="row">
+              <button type="button" class="btn primary" id="startTilt">Start with tilt</button>
+              <button type="button" class="btn" id="startTap">Taps only</button>
+            </div>
+            <p class="status" id="deckSummary" aria-live="polite"></p>
+            <p class="status" id="motionStatus" aria-live="polite" style="color:var(--soft)"></p>
+            <div class="zones">
+              <b>Upright, ±45°</b><span>The word shows. Nothing happens.</span>
+              <b>Tilt down past 45°</b><span>Correct, +1 point.</span>
+              <b>Tilt up past 45°</b><span>Skip, no point.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Words</h2>
+          <div class="seg" id="modeSeg" role="group" aria-label="Word source">
+            <button type="button" data-m="builtin" aria-pressed="true">Built-in decks</button>
+            <button type="button" data-m="custom" aria-pressed="false">My own words</button>
+          </div>
+
+          <div id="builtinBox" style="margin-top:16px">
+            <label for="expr" class="hint" style="margin:0 0 8px;display:block">Categories to play</label>
+            <div class="row" style="flex-wrap:nowrap">
+              <input id="expr" class="field" type="text" inputmode="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="All">
+              <button type="button" class="btn small" id="exprClear">Clear</button>
+            </div>
+            <div class="chips" id="catChips" aria-label="Categories"></div>
+            <div class="chips" id="opChips" aria-label="Operators"></div>
+            <p class="status" id="exprMsg" aria-live="polite"></p>
+            <details id="prevBox">
+              <summary id="prevSum">Show the words</summary>
+              <ul class="plist" id="prevList"></ul>
+            </details>
+            <details>
+              <summary>How to type categories</summary>
+              <div class="body">
+                <dl>
+                  <dt><code>All</code></dt><dd>Every category.</dd>
+                  <dt><code>Genetics</code></dt><dd>One category.</dd>
+                  <dt><code>Endocrinology+Genetics</code></dt><dd>Words from both.</dd>
+                  <dt><code>Med(x)</code></dt><dd>Medications in x.</dd>
+                  <dt><code>Syn(x)</code></dt><dd>Syndromes in x.</dd>
+                  <dt><code>Plus(x)</code></dt><dd>Higher knowledge words in x.</dd>
+                  <dt><code>Plusplus(x)</code></dt><dd>Elite knowledge words in x.</dd>
+                  <dt><code>Med(Embryology+Metabolism+Genetics)</code></dt><dd>Medications from all three.</dd>
+                  <dt><code>(Med+Syn)(Endocrinology)</code></dt><dd>Medications and syndromes in Endocrinology.</dd>
+                  <dt><code>Endocrinology-(Med)Endocrinology</code></dt><dd>Endocrinology without its medications.</dd>
+                </dl>
+                <p class="hint">A bare category leaves out the Plus and Plusplus words. Ask for them with <code>Plus(...)</code> or <code>Plusplus(...)</code>, for example <code>Endocrinology+Plus(Endocrinology)</code>. Capital letters do not matter.</p>
+              </div>
+            </details>
+          </div>
+
+          <div id="customBox" style="margin-top:16px" hidden>
+            <label for="words" class="hint" style="margin:0 0 8px;display:block">One word per line. Saved on this device.</label>
+            <textarea id="words" class="field" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+            <div class="row" style="margin-top:10px;justify-content:space-between">
+              <span class="hint" id="count" style="margin:0"></span>
+              <button type="button" class="btn small" id="resetWords">Reset to starter words</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen settings" id="settings" hidden>
+    <div class="set-wrap">
+      <div class="row" style="justify-content:space-between">
+        <div class="brand"><h1 style="font-size:clamp(32px,5vw,48px)">Settings</h1></div>
+        <button type="button" class="btn" id="setBack">Back</button>
+      </div>
+
+      <div class="panel">
+        <h2>Sound</h2>
+        <button type="button" class="switch" id="soundBtn" role="switch" aria-checked="true"><i></i><span id="soundLabel">On</span></button>
+      </div>
+
+      <div class="panel">
+        <h2>Tilt</h2>
+        <div class="row">
+          <button type="button" class="btn" id="recal">Recalibrate tilt</button>
+        </div>
+        <p class="status" id="setStatus" aria-live="polite" style="color:var(--soft)"></p>
+        <p class="hint">Teaches the game which way is down on your iPad, and lets you try the 45° zones.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Color scheme</h2>
+        <div class="seg" id="presetSeg" aria-label="Preset color schemes" style="margin-bottom:16px"></div>
+        <p class="hint" style="margin:0 0 8px">Menu</p>
+        <div class="colors" id="menuColors"></div>
+        <p class="hint" style="margin:18px 0 8px">In game</p>
+        <div class="colors" id="gameColors"></div>
+        <p class="hint">The word uses whichever of Color 1 or Color 3 reads better on Color 4.</p>
+        <div class="pv" style="margin-top:14px" aria-hidden="true"><div class="n">Methotrexate</div><div class="g">Correct</div><div class="s">Skip</div></div>
+        <div class="row" style="margin-top:14px"><button type="button" class="btn small" id="resetColors">Reset colors</button></div>
+      </div>
+
+      <div class="row"><button type="button" class="btn" id="dlBtn" hidden>Download game file</button></div>
+    </div>
+  </section>
+
+  <!-- TILT SETUP -->
+  <section class="screen center" id="calib" hidden>
+    <h2 id="calibTitle">Tilt setup</h2>
+    <p class="big-line" id="calibLine"></p>
+    <div class="gaugeRow" id="gaugeBox" hidden>
+      <div class="gauge" aria-hidden="true">
+        <div class="z zU">Skip</div><div class="z zM"></div><div class="z zD">Correct</div>
+        <i class="needle" id="needle"></i>
+      </div>
+      <div class="gtext"><span class="deg" id="deg">0°</span><span id="zoneNow"></span></div>
+    </div>
+    <p class="sub" id="calibSub"></p>
+    <div class="row" style="justify-content:center">
+      <button type="button" class="btn primary" id="calibDone" hidden>Done</button>
+      <button type="button" class="btn" id="calibFlip" hidden>Up and down are swapped</button>
+      <button type="button" class="btn" id="calibCancel">Use taps instead</button>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section class="screen play" id="play" hidden>
+    <div class="hud">
+      <div><span class="tag">Score</span><span class="val" id="score">0</span></div>
+      <button type="button" class="quit" id="quit">End round</button>
+      <div class="right"><span class="tag">Time</span><span class="val" id="time">90</span></div>
+    </div>
+    <div class="stage" id="stage"><span class="word" id="word"></span></div>
+    <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+    <div class="taps">
+      <button type="button" id="tapSkip">Skip<small>tilt up</small></button>
+      <button type="button" id="tapOk">Correct<small>tilt down</small></button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="screen results" id="results" hidden>
+    <div class="res-wrap">
+      <div>
+        <h2>Time is up</h2>
+        <p class="score" id="finalScore">0</p>
+        <p class="sub" id="finalSub"></p>
+      </div>
+      <div class="row">
+        <button type="button" class="btn primary" id="again">Play again</button>
+        <button type="button" class="btn" id="toHome">Words and settings</button>
+      </div>
+      <div class="lists">
+        <div class="ok panel"><h2>Got it</h2><ul id="okList"></ul></div>
+        <div class="no panel"><h2>Skipped</h2><ul id="noList"></ul></div>
+      </div>
+    </div>
+  </section>
+  <div class="toast" id="toast" hidden></div>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+/* ===== Built-in word list, in the original confix format ===== */
+const CONFIX = "### Cell Tissue\nHematoxylin\nEosin\nFenestrated Capillary\nTracheoesophageal Fistula\nAdrenal Gland\n    #Pyramidal\n    #Semilunar\nAlbumin\nGlobulin\nFibrinogen\n\n### Endocrinology\n\nPulsatile Secretion\nCounterregulatory Hormone\nReceptor Downregulation\n\nHypothalamus\n    +Paraventricular Nucleus\n    +Supraoptic Nucleus\n    CRH\n    TRH\n    GnRH\n    GHRH\n    Somatostatin\n        >+Octreotide\n        >+Lanreotide\n    LRH\n    Dopamine\n        >+Cabergoline\n        >+Bromocriptine\n\nHypothalamo-hypophyseal System\n\nAdenohypophysis\n    Pituitary Adenoma\n    #Basophil\n    ACTH\n    TSH\n    FSH\n        Estrogen\n        +Inhibin\n    LH\n        Testosterone\n        Amenorrhea\n        Oligomenorrhea\n    #Acidophil\n    #Somatotroph\n    Growth Hormone\n        +Somatomedin A\n        Somatomedin C\n            Insulin-like Growth Factor-1\n        +Osteocalcin\n        #Activates Vitamin D\n        #Linear Bone Growth\n        Osteoporosis\n        Osteopetrosis\n        Deep Sleep\n        *Dwarfism\n        *Gigantism\n        *Acromegaly\n            Macrognathia\n            Prognathism\n    #Mammotroph\n    Prolactin\n        Mammogenesis\n        Lactogenesis\n        Galactopoiesis\n        #Inhibits GnRH\n        Hyperprolactinemia\n            Gynecomastia\n            Galactorrhea\n            #Hirsutism\n            Hyperprolactinemic Hypogonadism\n    *Sheehan's Syndrome\n        Postpartum Hemorrhage\n        Ischemia\n    Chromophobe\n    Folliculostellate Cell\n\n\nNeurohypophysis\n    Herring Bodies\n        ADH\n            Arginine Vasopressin\n            +Lysine Vasopressin\n            +Osmoreceptor Cell\n            Aquaporin 2\n                +Lithium\n            *Diabetes Insipidus\n            *Nephrogenic Diabetes Insipidus\n                Polyurea\n                Polydipsia\n            SIADH\n            +Desmopressin\n            +Democlocycline\n        Oxytocin\n            Myoepithelial Cell\n            Suckling Reflex\n            #Stops Postpartum Hemorrhage\n        +Neurophysin\n    Pituicyte\n\nPars Intermedia\n    Proopiomelanocortin\n        +CLIP\n    Rathke's Pouch\n    MSH\n\nPineal Gland\n    Melatonin\n    Circadian Rhythm\n\nAdrenal Cortex\n    Cholesterol\n    P450scc\n    Pregnenolone\n    Zona Glomerulosa\n        Aldosterone\n        RAAS\n            Renin\n            Angiotensin I\n            Angiotensin Converting Enzyme\n                Captopril\n            Angiotensin II\n        *Conn's Syndrome\n    Zona Fasciculata\n        Glucocorticoid\n            Erythropoietin\n        Cortisol\n            Transcortin\n        Addison's Disease\n            Hyperpigmentation\n            Hypovolemic Shock\n        *Cushing Syndrome\n            Buffalo Hump\n            Moon Face\n            Purple Striae\n            Central Obesity\n            Polyphagia\n            +Polycytemia\n        Cushing's Disease\n        +>Prednisolone\n        >Dexamethasone\n    Zona Reticularis\n        Dehydroepiandrosterone (DHEA)\n        +Estrone\n        Estradiol\n        Adrenal Androgen\n        *Congenital Adrenal Hyperplasia\n        Virilization\n        Hirsutism\n        Adrenarche\n        Libido\n        Ambiguous Genitalia\n        Precocious Puberty\nAdrenal Medulla\n    Chromaffin Cell\n        Norepinephrine\n        Epinephrine\n        Vanillylmandelic Acid\n        Adrenergic Receptor\n    Pheochromocytoma\n    Phenylethanolamine-N-Methyltransferase\n    Catechol-O-Methyltransferase\n    Monoamine Oxidase\n\nParathyroid Gland\n    \n    Parathyroid Chief Cell\n        PTH\n            RANKL\n                +Cathepsin K\n            Osteoprotegerin\n                #Activated by Estrogen\n            Hydroxyapatite\n            1α-Hydroxylase\n            Calcitriol\n            +1,25-Dihydroxycholecalciferol\n                +Transient Receptor Potential Vanilloid 6 (TRPV6)\n            +Transient Receptor Potential Vanilloid 5 (TRPV5)\n            +Calbindin\n            +Sodium-Calcium Exchanger (NCX)\n            +PMCA\n        ++Fibroblast Growth Factor 23\n            +Hypophosphatemic Rickets\n        Calcium-Sensing Receptor\n        #Intermittent PTH actually promotes bone formation\n            ++Sclerostin\n        #Magnesium has biphasic effect on PTH release\n    +Oxyphil Cell\n    +PTH1R\n        +PTHrP\n    +PTH2R\n        ++TIP39\n#Parathyroid Diseases\n    *Primary Hyperparathyroidism\n        #Calcium high, Phosphate low, PTH high\n        Hypercalciuria\n        Nephrolithiasis\n    *Secondary Hyperparathyroidism\n        #Usually with CKD, Calcium low-normal, Phosphate high, PTH high\n    Tertiary Hyperparathyroidism\n        #Prolonged Secondary Hyperthyroidism, Calcium High, Phosphate High, PTH High\n    *Hypoparathyroidism\n    *Pseudohypoparathyroidism\nCalcium Homeostasis\n    Ionized Calcium\n    Chvostek Sign\n    Carpopedal Spasm\n    Trosseau Sign\n    Osteoblast\n    Osteoclast\n    *Humoral Hypercalcemia of Malignancy\n        #PTHrP high, PTH low, Calcium high, Phosphate low\n    +Calcinosis\n        #High vitamin D causes calcification of soft tissues\n    +Cardiac Arrhythmia\n    Menopause\n\nThyroid Gland\n    Flapping Tremor\n    Pitting Edema\n    Thyroid Follicular Cell\n        Sodium-Iodide Exchanger (NIS)\n        +Pendrin\n        Thyroglobulin\n        Organification\n        Iodination\n        Coupling\n            Monoiodothyronine\n            Diiodothyronine\n        Thyroid Peroxidase\n        Thyroxine (T4)\n            Mucopolysaccharide\n            #High level leads to protein breakdown\n            *Cretinism\n            *Myxedema\n                Periorbital Myxedema\n            *Hashimoto Thyroiditis\n            *Graves' Disease\n                Acropachy\n                Pretibial Myxedema\n                Exophthalmos\n        Triiodothyronine (T3)\n            Thermogenin\n        Thyroid Binding Globulin (TBG)\n        5'-Deiodinase\n        Wolff-Chaikoff Effect\n        Jod-Basedow Effect\n        Goitrogen\n            #Found in raw broccoli, raw cabbage\n    Thyroid Parafollicular Cell\n        Calcitonin\n\nIslets of Langerhans\n    Alpha Cell\n        Glucagon\n        Hormone-Sensitive Lipase\n    Beta Cell\n        Insulin\n        *Diabetes Mellitus Type I\n        *Diabetes Mellitus Type II\n        GLUT4\n        Crystalline Core\n    Delta Cell\n        #Somatostatin\n    F Cell\n        Pancreatic Polypeptide\n\n### Genetics\nEpigenetics\n    Histone Modification\n    DNA Methylation\n    Non-coding RNAs\n\n#Techniques\nSodium Dodecyl Sulfate\n    #Destroys Phospholipid Bilayer of the Cell\nProteinase K\n    #Destroys Histone Protein\nEthylenediaminetetraacetic Acid\nRestriction Enzyme\nRestriction Site\n    Blunt End\n    Sticky End\nPalindrome\nExonuclease\nEndonuclease\nGel Electrophoresis\n    Agarose Gel\n    Acrylamide Gel\nDNA Ladder\nSouthern Blotting\n    #DNA\nNorthern Blotting\n    #RNA\nWestern Blotting\n    #protein\nAnneal\nHybridisation\nPolymerase Chain Reaction\n    Thermus aquaticus\nSanger Sequencing\nRecombinant DNA\n    Plasmid\n    Vector\nDNA Cloning\n    Dolly The Sheep\n\n### Embryology\nCapacitation\nAmpulla\nAcrosomal Reaction\nCorticol Reaction\nRapid Depolarization\nZona Reaction\nFertilization\nZygote\nEmbryo\nZona Pellucida\nCorona Radiata\nBlastomere\nBlastocyst\nBlastocele\nEmbryoblast\n    Inner Cell Mass\nTrophoblast\n    Outer Cell Mass\n    Cytotrophoblast\n    Syncytiotrophoblast\n    Chorionic Villi\nImplantation\n    Fibrin Coagulum\nBilaminar Disc\n    Amniotic Membrane\n        Amnioblast\n    Amniotic Cavity\n    Epiblast\n    Hypoblast\n    Exocoelomic Cavity\n    Heuser's Membrane\n        Primitive Yolk Sac\n        Primary Umbilical Vesicle\nLacunae\nSinusoid\nExtraembryonic Mesoderm\n    Extraembryonic Somatic Mesoderm\n    Extraembryonic Splanchnic Mesoderm\n    Chorionic Cavity\n    Connecting Stalk\n    Exocoelomic Cyst\n    Secondary Umbilical Vesicle\n    Definitive Yolk Sac\nTrilaminar Disc\n    Ectoderm\n        Surface Ectoderm\n        Neuroectoderm\n            Neural Plate\n            Neural Fold\n            +Median Hinge Point\n            Neural Tube\n            Neural Crest Cell\n            Neuropore\n                *Anencephaly\n                *Spina Bifida\n    Mesoderm\n        *Sirenomelia\n        Paraxial Mesoderm\n            Dermatome\n            Myotome\n            Sclerotome\n        Intermediate Mesoderm\n        Lateral Plate Mesoderm\n            Somatopleure\n            Splanchnopleure\n                #Cardiogenic Area\n                    Cardiac Crescent\n                    Heart Tube\n                    +Cardiac Jelly\n                    +Sinus Venosus\n                        +Common Cardinal Vein\n                        +Umbilical Vein\n                        +Vitelline Vein\n                    +Sinuatrial Orifice\n                        #Left Venous Valve\n                        #Right Venous Valve\n                            +Eustachian Valve\n                            +Thebesian Valve\n                        +Septum Spurium\n                    +Primitive Atria\n                    +Atrioventricular Canal\n                    +Primitive Ventricle\n                    +Bulboventricular Sulcus\n                    +Conus Cordis\n                    +Truncus Arteriosus\n                    +Bulbus Cordis\n                    +Aortic Sac\n                    ++Sinus Venarum\n                    ++Crista Terminalis\n                    ++Trabeculae Carneae\n                        Chordae Tendineae\n                        Papillary Muscle\n                    ++Musculi Pectinati\n                    ++Septum Intermedium\n                    ++Septum Primum\n                    ++Ostium Primum\n                    ++Ostium Secundum\n                    ++Septum Secundum\n                    ++Foramen Ovale\n                    ++Fossa Ovalis\n                    ++Aorticopulmonary Septum\n                    +Endocardial Cushion\n                    ++Conus Arteriosus\n                    ++Aortic Vestibule\n                    Interventricular Septum\n                    Pericardium\n                    Tricuspid Valve\n                    Mitral Valve\n                    Aortic Semilunar Valve\n                    Pulmonary Semilunar Valve\n                    Superior Vena Cava\n                    Inferior Vena Cava\n                    Coronary Artery\n                    Coronary Sinus\n                        +Oblique Vein of Left Atrium\n                    Pulmonary Vein\n                    Ascending Aorta\n                    Brachiocephalic Trunk\n                        Subclavian Artery\n                        Common Carotid Artery\n                    Aortic Arch\n                    Pulmonary Trunk\n                    Pulmonary Artery\n                    +Ductus Arteriosus\n                    +Ligamentum Arteriosum\n    Endoderm\n        Foregut\n        Midgut\n        Hindgut\n+Epithelial-to-Mesenchymal Transition\n++FGF8\n++SNAIL\n++SLUG\n++E-cadherin\nOropharyngeal Membrane\n    Prechordal Plate\nCloacal Membrane\nPrimitive Streak\nPrimitive Groove\nHensen's Node\n    Notochordal Process\n    Primitive Pit\n    Notochordal Canal\n    +Notochordal Plate\n    Neurenteric Canal\nNotochord\nBlood Island\nVasculogenesis\n    Hemangioma\nAngiogenesis\n\n\nBlastopore\n    Protostome\n    Deuterostome\n    #Filopodia\nSonic Hedgehog\nRetinoic Acid\nMorphogen Gradient\nParent-Specific Imprint\n\n#Embryo Animal Model\nCaenorhabditis elegans\nDrosophila Melanogaster\nDanio rerio\nXenopus laevis\nXenopus tropicalis\nGallus gallus\nMus musculus\nPapio hamadryas\n\nSitus inversus\nRight isomerism\nLeft isomerism\nCarnegie Stage\n\n### Metabolism\nEnzyme\nAllosteric Control\nCovalent Modification\nCatalytic Triad\n    #Asp102-His57-Ser195\n\nUbiquitin-Proteasome System\n    +Ubiquitin-Activating Enzyme\n    +Ubiquitin-Conjugating Enzyme\n    Ubiquitin Ligase\n    Proteasome\n        #19S Regulatory Cap\n        #20S Core\n        #Lys48-linked Polyubiquitin\n        >+Bortezomib\n\nGlucose\n    Hyperglycemia\n    Hypoglycemia\nGalactose\nFructose\n    GLUT5\nGlycolysis\n    Glucokinase\n    Glucose-6-Phosphatase\n        *Von Gierke Disease\n            Hepatomegaly\n    PFK-1\n    Fructose-2,6-Bisphosphate\n    2,3-Bisphosphoglycerate\n        T-State Stabilization\n    +Enolase\n        Fluoride\n    Fast-Twitch Muscle Fiber\n    Slow-Twitch Muscle Fiber\nLink Reaction\n    Pyruvate Dehydrogenase Complex\n    Thiamine Pyrophosphate\n    Lipoic Acid\n    Coenzyme A\n    FAD\n    NAD+\n    *Wernicke-Korsakoff Syndrome\nCori Cycle\n    Pyruvate\n    Lactate\n    Erythrocyte\nGlycogen\n    Glycogenin\n    Non-reducing End\n    Glycogenesis\n        Glycogen Synthase\n        Glycogen Branching \n            *+Andersen Disease\n    Glycogenolysis\n        Glycogen Phosphorylase\n            *McArdle Disease\n            *+Hers Disease\n        Glycogen Debranching Enzyme\n            *Cori Disease\n            Transferase Activity\n            Glucosidase Activity\n    *+Pompe Disease\nCahill Cycle\n    Alanine\nPentose Phosphate Pathway\n    *G6PD Deficiency\n        Jaundice\n        Bilirubin\n        Fava Bean\n        Reactive Oxygen Species\n            Superoxide Anion\n            Hydrogen Peroxide\n                Glutathione\n            Hydroxyl Radical\n*Galactosemia\n    +Galactose-1-Phosphate Uridyltransferase\n    Galactosuria\n    Galactitol\n    Cataract\nAlcohol\n    Fatty Liver\n    Foie Gras\n    *Cirrhosis\n    #Alcohol Flush Reaction\n    >+Disulfiram\n        Aldehyde Dehydrogenase\n\nFatty Acid\n    Palmitic Acid\n    Oleic Acid\n    HMG-CoA Reductase\n        +Mevalonate\n        >Statin\n    Citrate Shuttle\n    Acetyl-CoA Carboxylase\n        Biotin\n        Malonyl-CoA\n    Fatty Acid Synthesis\n        Fatty Acid Synthase\n    Carnitine Shuttle\n        Acyl-CoA Synthetase\n        Carnitine\n        Carnitine Palmitoyltransferase I\n        Carnitine Acyl-Carnitine Translocase\n        Carnitine Palmitoyltransferase II\n    β-Oxidation\n        *MCAD Deficiency\n        *Primary Carnitine Deficiency\n    Ketone Body\n        Ketogenesis\n        Ketolysis\n        Acetone\n            Kussmaul Breathing\n            Fruity Breath\n        Acetoacetate\n        β-Hydroxybutyrate\n        Diabetic Ketoacidosis\n\nTransamination\n    Pyridoxal Phosphate\nGlutamate Dehydrogenase\nUrea Cycle\n    Ammonia\n        Astrocyte\n    Carbamoyl Phosphate\n        N-Acetylglutamate\n    Ornithine\n    Citrulline\n    Aspartate\n    Argininosuccinate\n    Fumarate\n    Arginine\n    Urea\n    *OTC Deficiency\n    +Periportal Hepatocyte\n    +Perivenous Hepatocyte\n\n*Phenylketonuria\n    Biopterin\n    Phenylalanine\n    Tyrosine\n    Phenylalanine Hydroxylase\n    Musty Odor\n    >+Sapropterin\n    >+Pegvaliase\n*Homocystinuria\n    Cystathionine β Synthase\n    Thrombosis\n    #Marfan-Like Body\n    Downward-Inward Lens Subluxation\n*Maple Syrup Urine Disease\n    BCKDH Complex\n    Neurotoxicity\n\nBile Salt\nMicelle\nApolipoprotein C-II\n    Lipoprotein Lipase\nApolipoprotein E\n    LDLR\n    Lipoprotein Receptor-Related Protein\nChylomicron\n    Apolipoprotein B-48\n    Exogenous Lipoprotein Pathway\n    Milky Serum\n    Lacteal\n    Thoracic Duct\n    Left Subclavian Vein\nVLDL\n    Apolipoprotein B-100\n        #LDLR\n    Endogenous Lipoprotein Pathway\nIDL\nLDL\n    Oxidized-LDL\n    Foam Cell\n    Atherosclerosis\nHDL\n    Apolipoprotein A-I\n        Lecithin-Cholesterol Acyltransferase\n        Cholesteryl Ester\n    Reverse Cholesterol Transport\n    ABCA1\n    ABCG1\n    Scavenger Receptor-BI\n    Hepatic Triglyceride Lipase\n+Friedewald Formula\n    #Total Cholesterol is estimated as LDL plus HDL plus TAG over 5\n\n#Nucleotide Metabolism\n    *Lesch-Nyhan Syndrome\n        Hypoxanthine-Guanine Phosphoribosyltransferase\n    *Severe Combined Immunodeficiency (SCID)\n    *PNP Deficiency\n    *Orotic Aciduria\n    >Allopurinol\n        Xanthine Oxidase\n        Uric Acid\n        Gout\n    >Methotrexate\n        Dihydrofolate Reductase\n    >+Probenecid\n    >+Hydroxyurea\n    >5-Fluorouracil\n        >+Capecitabine\n        Thymidylate Synthase\n    >6-Mercaptopurine\n        >+Azathioprine\n\n### Others\n*Guillain-Barré Syndrome\n    +Campylobacter Jejuni\nAtropine\n*Tetanus\n    Botulinum Tetani\n    SNARE Complex\nThalidomide\nChaperone\nHsp70";
+
+/* ===== Word engine: parses the confix and evaluates category expressions ===== */
+/*ENGINE-START*/
+function parseConfix(txt){
+  const cats=[];let cur=null,seq=0;
+  txt.split(/\r?\n/).forEach(line=>{
+    const t=line.trim();
+    if(!t)return;
+    if(t.indexOf("###")===0){cur={name:t.replace(/^#+/,"").trim(),words:[]};cats.push(cur);return}
+    if(t.charAt(0)==="#")return;                    // note, never a word
+    let i=0,type="w",lvl=0;
+    while(i<t.length&&">*+".indexOf(t.charAt(i))>-1){
+      const c=t.charAt(i);
+      if(c===">")type="m";else if(c==="*")type="s";else lvl++;
+      i++;
+    }
+    const text=t.slice(i).trim();
+    if(!text)return;
+    if(!cur){cur={name:"Others",words:[]};cats.push(cur)}
+    cur.words.push({t:text,type:type,lvl:Math.min(lvl,2),id:seq++});
+  });
+  return cats;
+}
+
+function buildEngine(txt){
+  const cats=parseConfix(txt);
+  const byId=[];
+  cats.forEach(c=>c.words.forEach(w=>{byId[w.id]=w}));
+  const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  const cand=[];
+  cats.forEach((c,i)=>cand.push({name:c.name,tok:{k:"cat",v:i}}));
+  cand.push({name:"All",tok:{k:"all"}});
+  ["Plusplus","Plus","Med","Syn"].forEach(f=>cand.push({name:f,tok:{k:"fn",v:f.toLowerCase()}}));
+  cand.sort((a,b)=>b.name.length-a.name.length);
+  cand.forEach(c=>{c.re=new RegExp("^"+esc(c.name).replace(/ /g,"\\s+")+"(?![A-Za-z0-9])","i")});
+
+  function tokenize(src){
+    src=src.replace(/[−–—]/g,"-");
+    const toks=[];let i=0;
+    while(i<src.length){
+      const ch=src.charAt(i);
+      if(/\s/.test(ch)){i++;continue}
+      if(ch==="("||ch===")"||ch==="+"||ch==="-"){toks.push({k:ch});i++;continue}
+      const rest=src.slice(i);let hit=null;
+      for(let j=0;j<cand.length;j++){const m=cand[j].re.exec(rest);if(m){hit=[cand[j],m[0].length];break}}
+      if(hit){toks.push(hit[0].tok);i+=hit[1];continue}
+      throw new Error("Unknown category: "+/^[^\s()+\-]+/.exec(rest)[0]);
+    }
+    return toks;
+  }
+
+  /* a value is {sc, inc}: sc = every word in scope (any level), inc = words included by default rules */
+  const mk=(sc,inc)=>({sc:sc,inc:inc});
+  const filt=(s,f)=>{const o=new Set();s.forEach(id=>{if(f(byId[id]))o.add(id)});return o};
+  const union=(a,b)=>mk(new Set([...a.sc,...b.sc]),new Set([...a.inc,...b.inc]));
+  const minus=(a,b)=>mk(new Set([...a.sc].filter(id=>!b.sc.has(id))),new Set([...a.inc].filter(id=>!b.sc.has(id))));
+  function catVal(i){const sc=new Set(),inc=new Set();cats[i].words.forEach(w=>{sc.add(w.id);if(w.lvl===0)inc.add(w.id)});return mk(sc,inc)}
+  function allVal(){const sc=new Set(),inc=new Set();byId.forEach(w=>{sc.add(w.id);if(w.lvl===0)inc.add(w.id)});return mk(sc,inc)}
+  function applyFn(f,v){
+    if(f==="med"||f==="syn"){const t=f==="med"?"m":"s";const g=w=>w.type===t;return mk(filt(v.sc,g),filt(v.inc,g))}
+    const L=f==="plus"?1:2;const s=filt(v.sc,w=>w.lvl===L);
+    return mk(s,new Set(s));
+  }
+
+  function run(src){
+    const toks=tokenize(src);let p=0;
+    const fail=m=>{throw new Error(m)};
+    const expect=k=>{if(!toks[p]||toks[p].k!==k)fail("Missing "+k);p++};
+    function parseExpr(){
+      let v=parseTerm();
+      while(toks[p]&&(toks[p].k==="+"||toks[p].k==="-")){
+        const op=toks[p++].k;const r=parseTerm();
+        v=op==="+"?union(v,r):minus(v,r);
+      }
+      return v;
+    }
+    function parseTerm(){
+      const t=toks[p++];
+      if(!t)return fail("The expression ends too soon.");
+      if(t.k==="cat")return catVal(t.v);
+      if(t.k==="all")return allVal();
+      if(t.k==="fn"){
+        if(!toks[p]||toks[p].k!=="(")return fail("Write it with brackets, like Med(Genetics)");
+        p++;const inner=parseExpr();expect(")");return applyFn(t.v,inner);
+      }
+      if(t.k==="("){
+        let q=p;const fns=[];let ok=true;
+        while(toks[q]&&toks[q].k!==")"){
+          if(toks[q].k==="fn")fns.push(toks[q].v);else if(toks[q].k!=="+"){ok=false;break}
+          q++;
+        }
+        if(ok&&fns.length&&toks[q]){
+          p=q+1;const target=parseTerm();
+          return fns.map(f=>applyFn(f,target)).reduce(union);
+        }
+        const v=parseExpr();expect(")");return v;
+      }
+      return fail("Unexpected "+(t.k==="cat"?"name":t.k));
+    }
+    const v=parseExpr();
+    if(p<toks.length)fail("Unexpected "+toks[p].k);
+    return v;
+  }
+
+  function resolve(src){
+    if(!src.trim())throw new Error("Type a category name, or tap one below.");
+    const v=run(src);const seen=new Set(),words=[];
+    [...v.inc].sort((a,b)=>a-b).forEach(id=>{
+      const w=byId[id],k=w.t.toLowerCase();
+      if(!seen.has(k)){seen.add(k);words.push(w)}
+    });
+    return words;
+  }
+  return {cats:cats,resolve:resolve};
+}
+/*ENGINE-END*/
+
+const ENGINE=buildEngine(CONFIX);
+
+/* ===== Settings ===== */
+const TILT_DEG=45, REARM_DEG=38, HOLD_MS=140;
+const DEFAULT_COLORS={c1:"#1d0e07",c2:"#2c170d",c3:"#fff3e3",c4:"#f27a1e",okTx:"#06240f",okBg:"#27b56a",skTx:"#fff3e3",skBg:"#7d2a18"};
+const PRESETS=[
+  {name:"Thai Tea",c:DEFAULT_COLORS},
+  {name:"Matcha",c:{c1:"#0f1f14",c2:"#1b3322",c3:"#eef5e6",c4:"#9ccc4a",okTx:"#07210f",okBg:"#2fbf71",skTx:"#fdeee8",skBg:"#8e3a22"}},
+  {name:"Taro",c:{c1:"#1a1226",c2:"#2a1d3d",c3:"#f3ecff",c4:"#b58cf2",okTx:"#062416",okBg:"#35c07b",skTx:"#fff0f0",skBg:"#8a2c4a"}},
+  {name:"Paper",c:{c1:"#f6efe6",c2:"#e6d9c8",c3:"#2a1710",c4:"#d9591e",okTx:"#ffffff",okBg:"#23864f",skTx:"#ffffff",skBg:"#a73a24"}}
+];
+const COLOR_FIELDS=[
+  {k:"c1",label:"Color 1",note:"Menu background",grp:"menu"},
+  {k:"c2",label:"Color 2",note:"Panels and buttons",grp:"menu"},
+  {k:"c3",label:"Color 3",note:"Menu text",grp:"menu"},
+  {k:"c4",label:"Color 4",note:"Accent and normal in-game background",grp:"menu"},
+  {k:"okTx",label:"Correct text",note:"In game",grp:"game"},
+  {k:"okBg",label:"Correct background",note:"In game",grp:"game"},
+  {k:"skTx",label:"Skip text",note:"In game",grp:"game"},
+  {k:"skBg",label:"Skip background",note:"In game",grp:"game"}
+];
+const STARTER=["Chloramphenicol","Methotrexate","Hydroxyurea","Febuxostat","6-Mercaptopurine","Probenecid"];
+const cfg={seconds:90,sound:true,mode:"builtin",expr:"All",custom:STARTER.join("\n"),sign:0,colors:Object.assign({},DEFAULT_COLORS)};
+
+const $=id=>document.getElementById(id);
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function saveCfg(){lsSet("chaperone.cfg",JSON.stringify(cfg))}
+(function loadCfg(){
+  let j=null;try{j=JSON.parse(lsGet("chaperone.cfg")||"null")}catch(e){}
+  if(j&&typeof j==="object"){
+    if([60,90,120].indexOf(j.seconds)>-1)cfg.seconds=j.seconds;
+    if(typeof j.sound==="boolean")cfg.sound=j.sound;
+    if(j.mode==="builtin"||j.mode==="custom")cfg.mode=j.mode;
+    if(typeof j.expr==="string")cfg.expr=j.expr;
+    if(typeof j.custom==="string"&&j.custom.trim())cfg.custom=j.custom;
+    if(j.sign===1||j.sign===-1)cfg.sign=j.sign;
+    if(j.colors&&typeof j.colors==="object")for(const k in DEFAULT_COLORS)if(/^#[0-9a-f]{6}$/i.test(j.colors[k]))cfg.colors[k]=j.colors[k];
+  }else{
+    const w=lsGet("chayen.words");if(w&&w.trim())cfg.custom=w;   // word list from the earlier version
+    const s=parseInt(lsGet("chayen.seconds"),10);if([60,90,120].indexOf(s)>-1)cfg.seconds=s;
+  }
+})();
+
+/* ===== Colors ===== */
+function lum(h){const n=parseInt(h.slice(1),16);const c=[(n>>16)&255,(n>>8)&255,n&255].map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2]}
+function contrast(a,b){const x=lum(a),y=lum(b);return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05)}
+function applyColors(){
+  const c=cfg.colors,st=document.documentElement.style;
+  const names={c1:"--c1",c2:"--c2",c3:"--c3",c4:"--c4",okTx:"--okTx",okBg:"--okBg",skTx:"--skTx",skBg:"--skBg"};
+  for(const k in names)st.setProperty(names[k],c[k]);
+  st.setProperty("--onAccent",contrast(c.c4,c.c1)>=contrast(c.c4,c.c3)?c.c1:c.c3);
+  st.setProperty("color-scheme",lum(c.c1)<0.35?"dark":"light");
+  COLOR_FIELDS.forEach(f=>{const el=$("col-"+f.k);if(el&&el.value!==c[f.k])el.value=c[f.k]});
+  setPage();
+}
+function buildColorUI(){
+  COLOR_FIELDS.forEach(f=>{
+    const lab=document.createElement("label");lab.className="col";
+    const inp=document.createElement("input");inp.type="color";inp.id="col-"+f.k;inp.value=cfg.colors[f.k];
+    const sp=document.createElement("span");sp.textContent=f.label;
+    const sm=document.createElement("small");sm.textContent=f.note;sp.appendChild(sm);
+    lab.appendChild(inp);lab.appendChild(sp);
+    $(f.grp==="menu"?"menuColors":"gameColors").appendChild(lab);
+    inp.addEventListener("input",()=>{cfg.colors[f.k]=inp.value;applyColors();saveCfg()});
+  });
+  PRESETS.forEach(p=>{
+    const b=document.createElement("button");b.type="button";b.textContent=p.name;
+    b.onclick=()=>{cfg.colors=Object.assign({},p.c);applyColors();saveCfg()};
+    $("presetSeg").appendChild(b);
+  });
+  $("resetColors").onclick=()=>{cfg.colors=Object.assign({},DEFAULT_COLORS);applyColors();saveCfg();toast("Colors reset")};
+}
+
+/* ===== State and screens ===== */
+const S={phase:"home",run:0,tilt:false,raw:0,gotMotion:false,armed:false,dir:0,since:0,flash:false,counting:false,
+         words:[],deck:[],cur:"",score:0,ok:[],no:[],end:0,timerId:0,deckInfo:{words:[],err:""},playTint:""};
+const SCREENS=["home","settings","calib","play","results"];
+function show(name){S.phase=name;SCREENS.forEach(s=>{$(s).hidden=(s!==name)});setPage()}
+function setPage(){
+  const st=document.documentElement.style;
+  if(S.phase!=="play"){st.removeProperty("--page");return}
+  const c=cfg.colors;st.setProperty("--page",S.playTint==="good"?c.okBg:S.playTint==="skip"?c.skBg:c.c4);
+}
+function tint(cls){S.playTint=cls;const p=$("play");p.classList.remove("good","skip");if(cls)p.classList.add(cls);setPage()}
+function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{el.hidden=true},2400)}
+
+/* ===== Sound ===== */
+let ac=null;
+function audio(){if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==="suspended"){try{ac.resume()}catch(e){}}return ac}
+function beep(f,d,t,type){if(!cfg.sound)return;const a=audio();if(!a)return;const o=a.createOscillator(),g=a.createGain(),s=a.currentTime+(t||0);o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(.25,s+.02);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g);g.connect(a.destination);o.start(s);o.stop(s+d+.05)}
+const sfx={ok(){beep(660,.12,0);beep(880,.18,.11)},skip(){beep(240,.22,0,"triangle")},tick(){beep(520,.08,0)},go(){beep(900,.3,0)},end(){beep(500,.2,0);beep(400,.2,.2);beep(300,.45,.4)}};
+function paintSound(){$("soundBtn").setAttribute("aria-checked",String(cfg.sound));$("soundLabel").textContent=cfg.sound?"On":"Off"}
+
+/* ===== Words and deck ===== */
+function parseCustom(){
+  const seen={},out=[];
+  $("words").value.split(/\r?\n/).forEach(l=>{const w=l.trim();if(w&&!seen[w.toLowerCase()]){seen[w.toLowerCase()]=1;out.push({t:w,type:"w",lvl:0})}});
+  return out;
+}
+function plural(n,s){return n+" "+s+(n===1?"":"s")}
+function refreshDeck(){
+  let words=[],err="";
+  if(cfg.mode==="custom"){words=parseCustom();$("count").textContent=plural(words.length,"word")}
+  else{try{words=ENGINE.resolve(cfg.expr)}catch(e){err=e.message}}
+  S.deckInfo={words:words,err:err};
+  $("exprMsg").textContent=cfg.mode==="builtin"?(err?"! "+err:""):"";
+  let sum="";
+  if(!err||cfg.mode==="custom"){
+    const m=words.filter(w=>w.type==="m").length,s=words.filter(w=>w.type==="s").length;
+    sum=plural(words.length,"word")+" in this round";
+    if(cfg.mode==="builtin"){if(m)sum+=" · "+plural(m,"medication");if(s)sum+=" · "+plural(s,"syndrome")}
+  }
+  $("deckSummary").textContent=sum||"No words yet";
+  $("startTilt").disabled=$("startTap").disabled=!words.length;
+  $("prevSum").textContent="Show the words ("+(err?0:words.length)+")";
+  if($("prevBox").open)renderPreview();
+}
+function renderPreview(){
+  const ul=$("prevList");ul.innerHTML="";
+  if(cfg.mode!=="builtin"||S.deckInfo.err)return;
+  S.deckInfo.words.forEach(w=>{
+    const li=document.createElement("li");li.textContent=w.t;
+    const tags=[];if(w.type==="m")tags.push("medication");if(w.type==="s")tags.push("syndrome");if(w.lvl===1)tags.push("+");if(w.lvl===2)tags.push("++");
+    if(tags.length){const sp=document.createElement("span");sp.className="tag";sp.textContent=tags.join(" · ");li.appendChild(sp)}
+    ul.appendChild(li);
+  });
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function nextWord(){
+  if(!S.deck.length){S.deck=shuffle(S.words.slice());if(S.deck.length>1&&S.deck[S.deck.length-1]===S.cur)S.deck.unshift(S.deck.pop())}
+  S.cur=S.deck.pop();showWord(S.cur,false);
+}
+
+function insertText(t,kind){
+  const el=$("expr");const trimmed=el.value.replace(/\s+$/,"");
+  const endsValue=/[A-Za-z0-9)]$/.test(trimmed);
+  let v;
+  if(kind==="name"){v=(!trimmed||/^all$/i.test(trimmed))?t:endsValue?trimmed+"+"+t:trimmed+t}
+  else if(kind==="fn"){v=(!trimmed||/^all$/i.test(trimmed))?t:endsValue?trimmed+"+"+t:trimmed+t}
+  else v=trimmed+t;
+  el.value=v;cfg.expr=v;saveCfg();refreshDeck();
+}
+function buildDeckUI(){
+  ["All"].concat(ENGINE.cats.map(c=>c.name)).forEach(n=>{
+    const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=n;b.onclick=()=>insertText(n,"name");$("catChips").appendChild(b);
+  });
+  [["+","+","op"],["−","-","op"],["Med(","Med(","fn"],["Syn(","Syn(","fn"],["Plus(","Plus(","fn"],["Plusplus(","Plusplus(","fn"],[")",")","op"]].forEach(o=>{
+    const b=document.createElement("button");b.type="button";b.className="chip op";b.textContent=o[0];b.setAttribute("aria-label",o[0]==="−"?"minus":o[0]);b.onclick=()=>insertText(o[1],o[2]);$("opChips").appendChild(b);
+  });
+  $("expr").value=cfg.expr;
+  $("expr").addEventListener("input",()=>{cfg.expr=$("expr").value;saveCfg();refreshDeck()});
+  $("exprClear").onclick=()=>{$("expr").value="";cfg.expr="";saveCfg();refreshDeck()};
+  $("prevBox").addEventListener("toggle",()=>{if($("prevBox").open)renderPreview()});
+  $("words").value=cfg.custom;
+  $("words").addEventListener("input",()=>{cfg.custom=$("words").value;saveCfg();refreshDeck()});
+  $("resetWords").onclick=()=>{$("words").value=STARTER.join("\n");cfg.custom=$("words").value;saveCfg();refreshDeck();toast("Starter words restored")};
+  paintMode();paintSeconds();
+}
+function paintMode(){
+  Array.prototype.forEach.call($("modeSeg").children,b=>b.setAttribute("aria-pressed",String(b.dataset.m===cfg.mode)));
+  $("builtinBox").hidden=cfg.mode!=="builtin";$("customBox").hidden=cfg.mode!=="custom";
+}
+function paintSeconds(){Array.prototype.forEach.call($("timerSeg").children,b=>b.setAttribute("aria-pressed",String(parseInt(b.dataset.s,10)===cfg.seconds)))}
+
+/* ===== Tilt ===== */
+let motionBound=false;
+function onMotion(e){
+  const a=e.accelerationIncludingGravity;
+  if(!a||a.x==null||a.y==null||a.z==null)return;
+  const m=Math.sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
+  if(m<2)return;
+  /* angle of the screen's normal above or below the horizon: 0 when the screen is upright, 90 when it faces straight up or down */
+  const raw=Math.asin(Math.max(-1,Math.min(1,a.z/m)))*180/Math.PI;
+  S.raw=S.gotMotion?S.raw+0.5*(raw-S.raw):raw;
+  S.gotMotion=true;
+  if(S.phase==="play"&&S.tilt)checkTilt();
+}
+const tiltDeg=()=>S.raw*cfg.sign;   // positive = screen turned down toward the floor
+function enableMotion(){
+  return new Promise(resolve=>{
+    if(typeof DeviceMotionEvent==="undefined"){resolve("none");return}
+    function bind(){
+      if(!motionBound){window.addEventListener("devicemotion",onMotion);motionBound=true}
+      let tries=0;(function wait(){if(S.gotMotion){resolve("ok");return}if(++tries>14){resolve("silent");return}setTimeout(wait,100)})();
+    }
+    try{
+      if(typeof DeviceMotionEvent.requestPermission==="function"){
+        DeviceMotionEvent.requestPermission().then(r=>{if(r==="granted")bind();else resolve("denied")}).catch(()=>resolve("denied"));
+      }else bind();
+    }catch(e){resolve("denied")}
+  });
+}
+function checkTilt(){
+  if(!cfg.sign)return;
+  const th=tiltDeg(),now=performance.now();
+  if(!S.armed){
+    // after an answer, the iPad has to come back inside the upright zone before the next tilt counts
+    if(!S.flash&&!S.counting&&Math.abs(th)<REARM_DEG){S.armed=true;S.dir=0}
+    return;
+  }
+  if(S.flash||S.counting)return;
+  const dir=th>TILT_DEG?1:th<-TILT_DEG?-1:0;
+  if(!dir){S.dir=0;return}
+  if(dir!==S.dir){S.dir=dir;S.since=now;return}
+  if(now-S.since>=HOLD_MS){S.dir=0;answer(dir===1)}
+}
+
+let calibTimer=0;
+function paintGauge(){
+  const th=tiltDeg(),c=Math.max(-90,Math.min(90,th));
+  $("needle").style.top=((c+90)/180*100)+"%";
+  $("deg").textContent=Math.round(th)+"°";
+  $("zoneNow").textContent=th>TILT_DEG?"Correct":th<-TILT_DEG?"Skip":"Word shows";
+}
+function runCalibration(after,doneLabel,cancelLabel){
+  show("calib");
+  const st={step:"A",seenUp:false,hold:0,t0:performance.now()};
+  $("gaugeBox").hidden=true;$("calibDone").hidden=true;$("calibFlip").hidden=true;
+  $("calibDone").textContent=doneLabel;$("calibCancel").textContent=cancelLabel;
+  $("calibLine").textContent="Hold the iPad upright, then tilt the screen down toward the floor.";
+  $("calibSub").textContent="Start with the screen facing forward, like on your forehead. This teaches the game which way is down on your iPad.";
+  clearInterval(calibTimer);
+  function stop(){clearInterval(calibTimer)}
+  calibTimer=setInterval(()=>{
+    if(S.phase!=="calib"){stop();return}
+    if(st.step==="A"){
+      const r=S.raw;
+      if(Math.abs(r)<25)st.seenUp=true;
+      if(st.seenUp&&Math.abs(r)>50){st.hold++;if(st.hold>=8){
+        cfg.sign=r>0?1:-1;saveCfg();sfx.ok();st.step="B";
+        $("calibLine").textContent="Try it. Tilt down past 45° to score, up past 45° to skip.";
+        $("calibSub").textContent="Holding it upright shows the word. If down and up are the wrong way round, swap them.";
+        $("gaugeBox").hidden=false;$("calibDone").hidden=false;$("calibFlip").hidden=false;
+      }}else st.hold=0;
+      if(performance.now()-st.t0>40000){stop();S.tilt=false;toast("Tilt setup timed out. Taps only.");after(false)}
+    }else paintGauge();
+  },60);
+  $("calibDone").onclick=()=>{stop();after(true)};
+  $("calibFlip").onclick=()=>{cfg.sign=-cfg.sign;saveCfg();toast("Up and down swapped")};
+  $("calibCancel").onclick=()=>{stop();S.tilt=false;after(false)};
+}
+
+/* ===== Round ===== */
+function fitWord(){
+  const w=$("word"),st=$("stage");
+  const maxW=st.clientWidth*0.94,maxH=st.clientHeight*0.92;
+  if(maxW<=0||maxH<=0)return;
+  w.style.width=maxW+"px";
+  let lo=14,hi=Math.min(maxH,560),best=lo;
+  for(let i=0;i<13;i++){
+    const mid=(lo+hi)/2;w.style.fontSize=mid+"px";
+    if(w.scrollWidth<=maxW+1&&w.offsetHeight<=maxH){best=mid;lo=mid}else hi=mid;
+  }
+  w.style.fontSize=best+"px";
+}
+function showWord(t,isMsg){const w=$("word");w.textContent=t;w.classList.toggle("msg",!!isMsg);fitWord()}
+window.addEventListener("resize",()=>{if(S.phase==="play")fitWord()});
+function setScore(){$("score").textContent=S.score}
+
+function answer(correct){
+  if(S.phase!=="play"||S.flash||S.counting||!S.cur)return;
+  const run=S.run;S.flash=true;S.armed=false;
+  if(correct){S.score++;S.ok.push(S.cur);sfx.ok();tint("good");showWord("Correct",true)}
+  else{S.no.push(S.cur);sfx.skip();tint("skip");showWord("Skip",true)}
+  setScore();
+  setTimeout(()=>{
+    if(run!==S.run||S.phase!=="play")return;
+    tint("");S.flash=false;
+    if(performance.now()>=S.end){finishRound();return}
+    nextWord();S.armed=!S.tilt;
+  },600);
+}
+function startRound(){
+  const words=S.deckInfo.words.map(w=>w.t);
+  if(!words.length){toast("Pick some words first");show("home");return}
+  const run=++S.run;
+  S.words=words;S.deck=[];S.cur="";S.score=0;S.ok=[];S.no=[];S.flash=false;S.armed=false;S.counting=true;S.dir=0;
+  setScore();$("time").textContent=cfg.seconds;$("barFill").style.transform="scaleX(1)";
+  show("play");tint("");
+  try{if(navigator.wakeLock)navigator.wakeLock.request("screen").catch(()=>{})}catch(e){}
+  const seq=["Forehead!","3","2","1"];let i=0;
+  (function step(){
+    if(run!==S.run||S.phase!=="play")return;
+    if(i<seq.length){showWord(seq[i],true);if(i>0)sfx.tick();i++;setTimeout(step,1000);return}
+    S.counting=false;sfx.go();
+    S.end=performance.now()+cfg.seconds*1000;
+    nextWord();S.armed=!S.tilt;
+    tickTimer(run);
+  })();
+}
+function tickTimer(run){
+  clearInterval(S.timerId);
+  S.timerId=setInterval(()=>{
+    if(run!==S.run||S.phase!=="play"){clearInterval(S.timerId);return}
+    const left=Math.max(0,S.end-performance.now());
+    $("time").textContent=Math.ceil(left/1000);
+    $("barFill").style.transform="scaleX("+(left/(cfg.seconds*1000))+")";
+    if(left<=0){clearInterval(S.timerId);if(!S.flash)finishRound()}
+  },100);
+}
+function finishRound(){
+  S.run++;clearInterval(S.timerId);S.armed=false;S.flash=false;S.counting=false;sfx.end();tint("");
+  $("finalScore").textContent=S.score;
+  $("finalSub").textContent=S.score===0?"No words this round. Try again.":plural(S.score,"word")+" guessed"+(S.no.length?", "+S.no.length+" skipped.":".");
+  fill($("okList"),S.ok,"None yet");fill($("noList"),S.no,"None");
+  show("results");
+}
+function fill(ul,arr,empty){ul.innerHTML="";(arr.length?arr:[empty]).forEach(t=>{const li=document.createElement("li");li.textContent=t;ul.appendChild(li)})}
+
+/* ===== Wiring ===== */
+$("timerSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cfg.seconds=parseInt(b.dataset.s,10);saveCfg();paintSeconds()});
+$("modeSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cfg.mode=b.dataset.m;saveCfg();paintMode();refreshDeck()});
+$("startTap").onclick=()=>{audio();S.tilt=false;startRound()};
+$("startTilt").onclick=()=>{
+  audio();$("motionStatus").textContent="Checking motion sensors…";
+  enableMotion().then(r=>{
+    if(r==="ok"){
+      $("motionStatus").textContent="";S.tilt=true;
+      if(cfg.sign)startRound();else runCalibration(ok=>{if(ok)startRound();else show("home")},"Start round","Use taps instead");
+    }else{
+      S.tilt=false;
+      $("motionStatus").textContent=r==="denied"?"Motion access was declined. Reload and allow it, or play with taps only.":"No motion data from this page. That happens in embedded viewers and on desktop. Open the downloaded file in Safari on the iPad, or play with taps only.";
+    }
+  });
+};
+$("recal").onclick=()=>{
+  audio();$("setStatus").textContent="";
+  enableMotion().then(r=>{
+    if(r==="ok"){S.tilt=true;runCalibration(()=>{show("settings")},"Save","Cancel")}
+    else $("setStatus").textContent="No motion data from this page, so tilt cannot be set up here. Open the downloaded file in Safari on the iPad.";
+  });
+};
+$("soundBtn").onclick=()=>{cfg.sound=!cfg.sound;saveCfg();paintSound();if(cfg.sound){audio();sfx.ok()}};
+$("openSettings").onclick=()=>show("settings");
+$("setBack").onclick=()=>show("home");
+$("tapOk").onclick=()=>answer(true);
+$("tapSkip").onclick=()=>answer(false);
+$("quit").onclick=()=>{if(S.counting){S.run++;clearInterval(S.timerId);S.counting=false;show("home");return}finishRound()};
+$("again").onclick=()=>{audio();startRound()};
+$("toHome").onclick=()=>show("home");
+
+buildColorUI();applyColors();buildDeckUI();paintSound();refreshDeck();
+
+/* Saving a copy works only when this page runs inside Claude */
+try{
+  if(window.claude&&window.claude.use){
+    window.claude.use("downloads").then(dl=>{
+      if(!dl)return;
+      const b=$("dlBtn");b.hidden=false;
+      b.onclick=()=>{
+        fetch("chaperone-standalone.html").then(r=>r.text()).then(t=>dl.save({filename:"chaperone.html",data:t})).then(()=>toast("Game file saved")).catch(e=>{if(!e||e.code!=="declined")toast("Could not save the file")});
+      };
+    }).catch(()=>{});
+  }
+}catch(e){}
+})();
+</script>
+
+</body></html>
