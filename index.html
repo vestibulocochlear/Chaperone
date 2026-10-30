@@ -18,6 +18,9 @@
   --skBg:#7d2a18;        /* in game, skip: background */
   --onAccent:#1d0e07;    /* set by script: whichever of Color 1 / Color 3 reads better on Color 4 */
   --head:#f27a1e;        /* set by script: Color 4 deepened where needed so small accent text stays readable */
+  --nbg:#f27a1e;         /* normal in-game background: one of Color 1 to 4, chosen in Settings */
+  --ntx:#1d0e07;         /* normal in-game text (the word): another of Color 1 to 4 */
+  --reef:clamp(70px,16vh,150px);
   --soft:color-mix(in srgb,var(--c3) 68%,var(--c1));
   --btn:color-mix(in srgb,var(--c2) 86%,var(--c3));
   --line:color-mix(in srgb,var(--c3) 16%,var(--c1));
@@ -33,7 +36,7 @@ body{margin:0;background:var(--page,var(--c1));color:var(--c3);font-family:var(-
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 button:disabled{opacity:.4;cursor:not-allowed}
 button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--head);outline-offset:3px}
-.screen{height:100%;display:flex;flex-direction:column;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.screen{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* shared pieces */
 h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,7vw,72px);line-height:.95;margin:0;letter-spacing:-.02em}
@@ -65,9 +68,9 @@ h2{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.12e
 .pmore{grid-column:4;justify-self:center;font-size:13px;font-weight:700;color:var(--head);padding:3px 6px;opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .25s,transform .25s,visibility .25s}
 .pmore.on{opacity:1;visibility:visible;transform:none}
 .pwin{overflow:hidden;margin:0 -4px 16px}
-.ptrack{display:flex;width:125%;transform:translateX(-20%);transition:transform .5s cubic-bezier(.25,.8,.25,1)}
+.ptrack{display:flex;width:175%;transform:translateX(-42.8571%);transition:transform .5s cubic-bezier(.25,.8,.25,1)}
 .ptrack.open{transform:translateX(0)}
-.ptrack>div{flex:0 0 20%;padding:0 4px;min-width:0}
+.ptrack>div{flex:0 0 14.2857%;padding:0 4px;min-width:0}
 .ptrack button{width:100%;height:48px;border-radius:10px;background:var(--btn);font-weight:700}
 .ptrack button[aria-pressed="true"]{background:var(--c4);color:var(--onAccent)}
 @media (prefers-reduced-motion:reduce){.ptrack,.pmore{transition:none}}
@@ -117,7 +120,7 @@ details dd{margin:0}
 .col small{display:block;font-weight:500;color:var(--soft)}
 .pv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .pv div{border-radius:12px;padding:18px 8px;text-align:center;font-family:var(--display);font-weight:800;font-size:clamp(16px,3vw,24px);overflow-wrap:anywhere}
-.pv .n{background:var(--c4);color:var(--onAccent)}
+.pv .n{background:var(--nbg);color:var(--ntx)}
 .pv .g{background:var(--okBg);color:var(--okTx)}
 .pv .s{background:var(--skBg);color:var(--skTx)}
 
@@ -137,7 +140,7 @@ details dd{margin:0}
 #zoneNow{font-weight:700}
 
 /* Play */
-.play{background:var(--c4);color:var(--onAccent);--pfg:var(--onAccent)}
+.play{background:var(--nbg);color:var(--ntx);--pfg:var(--ntx)}
 .play.good{background:var(--okBg);color:var(--okTx);--pfg:var(--okTx)}
 .play.skip{background:var(--skBg);color:var(--skTx);--pfg:var(--skTx)}
 .hud{display:flex;justify-content:space-between;align-items:center;padding-top:max(14px,env(safe-area-inset-top,0px));font-family:var(--display);font-weight:800}
@@ -166,6 +169,31 @@ details dd{margin:0}
 .lists .no li{border-left:5px solid var(--skBg);color:var(--soft)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom,0px));background:var(--c3);color:var(--c1);padding:10px 16px;border-radius:10px;font-weight:700;z-index:20;max-width:90vw;text-align:center}
 @media (prefers-reduced-motion:reduce){.switch i,.switch i::after{transition:none}}
+
+/* normal in-game colors: pick Color 1 to 4 for the word and for its background */
+.cc-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.cc{height:46px;border-radius:10px;border:0;background:var(--sw,var(--c1));color:var(--swtx,var(--c3));font-weight:800;font-size:18px;box-shadow:inset 0 0 0 1px var(--line)}
+.cc[aria-pressed="true"]{box-shadow:0 0 0 2px var(--c2),0 0 0 5px var(--c3)}
+.cc[aria-pressed="true"]::after{content:" \2713"}
+.cc[aria-disabled="true"]{opacity:.3}
+
+/* theme effects, behind the menus only */
+#fx{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+body.fx-on .panel{background:color-mix(in srgb,var(--c2) 84%,transparent)}
+body.fx-ocean .home,body.fx-ocean .settings,body.fx-ocean .results{padding-bottom:calc(var(--reef) + 16px)}
+.fl{position:absolute;line-height:1;opacity:0;transform:scale(.15);animation:bloom 8s ease-in-out infinite;will-change:transform,opacity}
+@keyframes bloom{0%{transform:scale(.15) rotate(-20deg);opacity:0}50%{transform:scale(1) rotate(15deg);opacity:.9}100%{transform:scale(.15) rotate(50deg);opacity:0}}
+.bub{position:absolute;bottom:-50px;border-radius:50%;border:1.5px solid rgba(255,255,255,.55);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55),rgba(255,255,255,.08) 62%);opacity:0;animation:rise 12s linear infinite;will-change:transform,opacity}
+@keyframes rise{0%{transform:translate(0,0);opacity:0}8%{opacity:.75}25%{transform:translate(var(--sway),-28vh)}50%{transform:translate(calc(var(--sway) * -1),-56vh)}75%{transform:translate(var(--sway),-84vh)}92%{opacity:.6}100%{transform:translate(0,-114vh);opacity:0}}
+.fish{position:absolute;left:0;top:30%;animation:swimL 30s linear infinite;will-change:transform}
+.fi{display:inline-block;animation:bob 3.6s ease-in-out infinite}
+.gl{display:inline-block;line-height:1}
+@keyframes swimL{from{transform:translateX(108vw)}to{transform:translateX(-20vw)}}
+@keyframes swimR{from{transform:translateX(-20vw)}to{transform:translateX(108vw)}}
+@keyframes bob{0%,100%{transform:translateY(-9px)}50%{transform:translateY(9px)}}
+#reef{position:absolute;left:0;right:0;bottom:0;height:var(--reef)}
+.sw{transform-box:fill-box;transform-origin:50% 100%;animation:sway 5s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(5deg)}}
 
 /* Phones held sideways: very little height, so tighten everything and use two columns */
 @media (max-height:500px){
@@ -197,6 +225,7 @@ details dd{margin:0}
 </style>
 
 <main style="height:100%">
+  <div id="fx" aria-hidden="true" hidden><div id="fxField"></div></div>
   <!-- HOME -->
   <section class="screen home" id="home">
     <div class="wrap">
@@ -323,11 +352,20 @@ details dd{margin:0}
         <div class="pwin"><div class="ptrack" id="presetSeg" role="group" aria-label="Preset color schemes"></div></div>
         <p class="hint" style="margin:0 0 8px">Menu</p>
         <div class="colors" id="menuColors"></div>
-        <p class="hint" style="margin:18px 0 8px">In game</p>
+        <p class="hint" style="margin:18px 0 6px">In game: normal screen</p>
+        <p class="hint" style="margin:0 0 6px">Normal text color (the word)</p>
+        <div class="cc-row" id="ccTx" role="group" aria-label="Normal text color"></div>
+        <p class="hint" style="margin:12px 0 6px">Normal background color</p>
+        <div class="cc-row" id="ccBg" role="group" aria-label="Normal background color"></div>
+        <p class="hint">Both choose from Color 1 to 4 above. The word and its background can't be the same color.</p>
+        <p class="hint" style="margin:18px 0 8px">In game: correct and skip</p>
         <div class="colors" id="gameColors"></div>
-        <p class="hint">The word uses whichever of Color 1 or Color 3 reads better on Color 4.</p>
         <div class="pv" style="margin-top:14px" aria-hidden="true"><div class="n">Methotrexate</div><div class="g">Correct</div><div class="s">Skip</div></div>
-        <div class="row" style="margin-top:14px"><button type="button" class="btn small" id="resetColors">Reset colors</button></div>
+        <div class="row" style="margin-top:14px;justify-content:space-between">
+          <button type="button" class="switch" id="fxBtn" role="switch" aria-checked="true"><i></i><span id="fxLabel">Theme effects: on</span></button>
+          <button type="button" class="btn small" id="resetColors">Reset colors</button>
+        </div>
+        <p class="hint">Flower, Ocean and Rainbow add motion to the menus. Changing a color by hand switches the theme's effects off.</p>
       </div>
 
       <div class="row"><button type="button" class="btn" id="dlBtn" hidden>Download game file</button></div>
@@ -394,7 +432,7 @@ details dd{margin:0}
 "use strict";
 
 /* ===== Built-in word list, in the original confix format ===== */
-const CONFIX = "### Cell Tissue\nHematoxylin\nEosin\nFenestrated Capillary\nTracheoesophageal Fistula\nAdrenal Gland\n    #Pyramidal\n    #Semilunar\nAlbumin\nGlobulin\nFibrinogen\n\n### Endocrinology\n\nPulsatile Secretion\nCounterregulatory Hormone\nReceptor Downregulation\n\nHypothalamus\n    +Paraventricular Nucleus\n    +Supraoptic Nucleus\n    CRH\n    TRH\n    GnRH\n    GHRH\n    Somatostatin\n        >+Octreotide\n        >+Lanreotide\n    LRH\n    Dopamine\n        >+Cabergoline\n        >+Bromocriptine\n\nHypothalamo-hypophyseal System\n\nAdenohypophysis\n    Pituitary Adenoma\n    #Basophil\n    ACTH\n    TSH\n    FSH\n        Estrogen\n        +Inhibin\n    LH\n        Testosterone\n        Amenorrhea\n        Oligomenorrhea\n    #Acidophil\n    #Somatotroph\n    Growth Hormone\n        +Somatomedin A\n        Somatomedin C\n            Insulin-like Growth Factor-1\n        +Osteocalcin\n        #Activates Vitamin D\n        #Linear Bone Growth\n        Osteoporosis\n        Osteopetrosis\n        Deep Sleep\n        *Dwarfism\n        *Gigantism\n        *Acromegaly\n            Macrognathia\n            Prognathism\n    #Mammotroph\n    Prolactin\n        Mammogenesis\n        Lactogenesis\n        Galactopoiesis\n        #Inhibits GnRH\n        Hyperprolactinemia\n            Gynecomastia\n            Galactorrhea\n            #Hirsutism\n            Hyperprolactinemic Hypogonadism\n    *Sheehan's Syndrome\n        Postpartum Hemorrhage\n        Ischemia\n    Chromophobe\n    Folliculostellate Cell\n\n\nNeurohypophysis\n    Herring Bodies\n        ADH\n            Arginine Vasopressin\n            +Lysine Vasopressin\n            +Osmoreceptor Cell\n            Aquaporin 2\n                +Lithium\n            *Diabetes Insipidus\n            *Nephrogenic Diabetes Insipidus\n                Polyurea\n                Polydipsia\n            SIADH\n            +Desmopressin\n            +Democlocycline\n        Oxytocin\n            Myoepithelial Cell\n            Suckling Reflex\n            #Stops Postpartum Hemorrhage\n        +Neurophysin\n    Pituicyte\n\nPars Intermedia\n    Proopiomelanocortin\n        +CLIP\n    Rathke's Pouch\n    MSH\n\nPineal Gland\n    Melatonin\n    Circadian Rhythm\n\nAdrenal Cortex\n    Cholesterol\n    P450scc\n    Pregnenolone\n    Zona Glomerulosa\n        Aldosterone\n        RAAS\n            Renin\n            Angiotensin I\n            Angiotensin Converting Enzyme\n                Captopril\n            Angiotensin II\n        *Conn's Syndrome\n    Zona Fasciculata\n        Glucocorticoid\n            Erythropoietin\n        Cortisol\n            Transcortin\n        Addison's Disease\n            Hyperpigmentation\n            Hypovolemic Shock\n        *Cushing Syndrome\n            Buffalo Hump\n            Moon Face\n            Purple Striae\n            Central Obesity\n            Polyphagia\n            +Polycytemia\n        Cushing's Disease\n        +>Prednisolone\n        >Dexamethasone\n    Zona Reticularis\n        Dehydroepiandrosterone (DHEA)\n        +Estrone\n        Estradiol\n        Adrenal Androgen\n        *Congenital Adrenal Hyperplasia\n        Virilization\n        Hirsutism\n        Adrenarche\n        Libido\n        Ambiguous Genitalia\n        Precocious Puberty\nAdrenal Medulla\n    Chromaffin Cell\n        Norepinephrine\n        Epinephrine\n        Vanillylmandelic Acid\n        Adrenergic Receptor\n    Pheochromocytoma\n    Phenylethanolamine-N-Methyltransferase\n    Catechol-O-Methyltransferase\n    Monoamine Oxidase\n\nParathyroid Gland\n    \n    Parathyroid Chief Cell\n        PTH\n            RANKL\n                +Cathepsin K\n            Osteoprotegerin\n                #Activated by Estrogen\n            Hydroxyapatite\n            1α-Hydroxylase\n            Calcitriol\n            +1,25-Dihydroxycholecalciferol\n                +Transient Receptor Potential Vanilloid 6 (TRPV6)\n            +Transient Receptor Potential Vanilloid 5 (TRPV5)\n            +Calbindin\n            +Sodium-Calcium Exchanger (NCX)\n            +PMCA\n        ++Fibroblast Growth Factor 23\n            +Hypophosphatemic Rickets\n        Calcium-Sensing Receptor\n        #Intermittent PTH actually promotes bone formation\n            ++Sclerostin\n        #Magnesium has biphasic effect on PTH release\n    +Oxyphil Cell\n    +PTH1R\n        +PTHrP\n    +PTH2R\n        ++TIP39\n#Parathyroid Diseases\n    *Primary Hyperparathyroidism\n        #Calcium high, Phosphate low, PTH high\n        Hypercalciuria\n        Nephrolithiasis\n    *Secondary Hyperparathyroidism\n        #Usually with CKD, Calcium low-normal, Phosphate high, PTH high\n    Tertiary Hyperparathyroidism\n        #Prolonged Secondary Hyperthyroidism, Calcium High, Phosphate High, PTH High\n    *Hypoparathyroidism\n    *Pseudohypoparathyroidism\nCalcium Homeostasis\n    Ionized Calcium\n    Chvostek Sign\n    Carpopedal Spasm\n    Trosseau Sign\n    Osteoblast\n    Osteoclast\n    *Humoral Hypercalcemia of Malignancy\n        #PTHrP high, PTH low, Calcium high, Phosphate low\n    +Calcinosis\n        #High vitamin D causes calcification of soft tissues\n    +Cardiac Arrhythmia\n    Menopause\n\nThyroid Gland\n    Flapping Tremor\n    Pitting Edema\n    Thyroid Follicular Cell\n        Sodium-Iodide Exchanger (NIS)\n        +Pendrin\n        Thyroglobulin\n        Organification\n        Iodination\n        Coupling\n            Monoiodothyronine\n            Diiodothyronine\n        Thyroid Peroxidase\n        Thyroxine (T4)\n            Mucopolysaccharide\n            #High level leads to protein breakdown\n            *Cretinism\n            *Myxedema\n                Periorbital Myxedema\n            *Hashimoto Thyroiditis\n            *Graves' Disease\n                Acropachy\n                Pretibial Myxedema\n                Exophthalmos\n        Triiodothyronine (T3)\n            Thermogenin\n        Thyroid Binding Globulin (TBG)\n        5'-Deiodinase\n        Wolff-Chaikoff Effect\n        Jod-Basedow Effect\n        Goitrogen\n            #Found in raw broccoli, raw cabbage\n    Thyroid Parafollicular Cell\n        Calcitonin\n\nIslets of Langerhans\n    Alpha Cell\n        Glucagon\n        Hormone-Sensitive Lipase\n    Beta Cell\n        Insulin\n        *Diabetes Mellitus Type I\n        *Diabetes Mellitus Type II\n        GLUT4\n        Crystalline Core\n    Delta Cell\n        #Somatostatin\n    F Cell\n        Pancreatic Polypeptide\n\n### Genetics\nEpigenetics\n    Histone Modification\n    DNA Methylation\n    Non-coding RNAs\n\n#Techniques\nSodium Dodecyl Sulfate\n    #Destroys Phospholipid Bilayer of the Cell\nProteinase K\n    #Destroys Histone Protein\nEthylenediaminetetraacetic Acid\nRestriction Enzyme\nRestriction Site\n    Blunt End\n    Sticky End\nPalindrome\nExonuclease\nEndonuclease\nGel Electrophoresis\n    Agarose Gel\n    Acrylamide Gel\nDNA Ladder\nSouthern Blotting\n    #DNA\nNorthern Blotting\n    #RNA\nWestern Blotting\n    #protein\nAnneal\nHybridisation\nPolymerase Chain Reaction\n    Thermus aquaticus\nSanger Sequencing\nRecombinant DNA\n    Plasmid\n    Vector\nDNA Cloning\n    Dolly The Sheep\n\n### Embryology\nCapacitation\nAmpulla\nAcrosomal Reaction\nCorticol Reaction\nRapid Depolarization\nZona Reaction\nFertilization\nZygote\nEmbryo\nZona Pellucida\nCorona Radiata\nBlastomere\nBlastocyst\nBlastocele\nEmbryoblast\n    Inner Cell Mass\nTrophoblast\n    Outer Cell Mass\n    Cytotrophoblast\n    Syncytiotrophoblast\n    Chorionic Villi\nImplantation\n    Fibrin Coagulum\nBilaminar Disc\n    Amniotic Membrane\n        Amnioblast\n    Amniotic Cavity\n    Epiblast\n    Hypoblast\n    Exocoelomic Cavity\n    Heuser's Membrane\n        Primitive Yolk Sac\n        Primary Umbilical Vesicle\nLacunae\nSinusoid\nExtraembryonic Mesoderm\n    Extraembryonic Somatic Mesoderm\n    Extraembryonic Splanchnic Mesoderm\n    Chorionic Cavity\n    Connecting Stalk\n    Exocoelomic Cyst\n    Secondary Umbilical Vesicle\n    Definitive Yolk Sac\nTrilaminar Disc\n    Ectoderm\n        Surface Ectoderm\n        Neuroectoderm\n            Neural Plate\n            Neural Fold\n            +Median Hinge Point\n            Neural Tube\n            Neural Crest Cell\n            Neuropore\n                *Anencephaly\n                *Spina Bifida\n    Mesoderm\n        *Sirenomelia\n        Paraxial Mesoderm\n            Dermatome\n            Myotome\n            Sclerotome\n        Intermediate Mesoderm\n        Lateral Plate Mesoderm\n            Somatopleure\n            Splanchnopleure\n                #Cardiogenic Area\n                    Cardiac Crescent\n                    Heart Tube\n                    +Cardiac Jelly\n                    +Sinus Venosus\n                        +Common Cardinal Vein\n                        +Umbilical Vein\n                        +Vitelline Vein\n                    +Sinuatrial Orifice\n                        #Left Venous Valve\n                        #Right Venous Valve\n                            +Eustachian Valve\n                            +Thebesian Valve\n                        +Septum Spurium\n                    +Primitive Atria\n                    +Atrioventricular Canal\n                    +Primitive Ventricle\n                    +Bulboventricular Sulcus\n                    +Conus Cordis\n                    +Truncus Arteriosus\n                    +Bulbus Cordis\n                    +Aortic Sac\n                    ++Sinus Venarum\n                    ++Crista Terminalis\n                    ++Trabeculae Carneae\n                        Chordae Tendineae\n                        Papillary Muscle\n                    ++Musculi Pectinati\n                    ++Septum Intermedium\n                    ++Septum Primum\n                    ++Ostium Primum\n                    ++Ostium Secundum\n                    ++Septum Secundum\n                    ++Foramen Ovale\n                    ++Fossa Ovalis\n                    ++Aorticopulmonary Septum\n                    +Endocardial Cushion\n                    ++Conus Arteriosus\n                    ++Aortic Vestibule\n                    Interventricular Septum\n                    Pericardium\n                    Tricuspid Valve\n                    Mitral Valve\n                    Aortic Semilunar Valve\n                    Pulmonary Semilunar Valve\n                    Superior Vena Cava\n                    Inferior Vena Cava\n                    Coronary Artery\n                    Coronary Sinus\n                        +Oblique Vein of Left Atrium\n                    Pulmonary Vein\n                    Ascending Aorta\n                    Brachiocephalic Trunk\n                        Subclavian Artery\n                        Common Carotid Artery\n                    Aortic Arch\n                    Pulmonary Trunk\n                    Pulmonary Artery\n                    +Ductus Arteriosus\n                    +Ligamentum Arteriosum\n    Endoderm\n        Foregut\n        Midgut\n        Hindgut\n+Epithelial-to-Mesenchymal Transition\n++FGF8\n++SNAIL\n++SLUG\n++E-cadherin\nOropharyngeal Membrane\n    Prechordal Plate\nCloacal Membrane\nPrimitive Streak\nPrimitive Groove\nHensen's Node\n    Notochordal Process\n    Primitive Pit\n    Notochordal Canal\n    +Notochordal Plate\n    Neurenteric Canal\nNotochord\nBlood Island\nVasculogenesis\n    Hemangioma\nAngiogenesis\n\n\nBlastopore\n    Protostome\n    Deuterostome\n    #Filopodia\nSonic Hedgehog\nRetinoic Acid\nMorphogen Gradient\nParent-Specific Imprint\n\n#Embryo Animal Model\nCaenorhabditis elegans\nDrosophila Melanogaster\nDanio rerio\nXenopus laevis\nXenopus tropicalis\nGallus gallus\nMus musculus\nPapio hamadryas\n\nSitus inversus\nRight isomerism\nLeft isomerism\nCarnegie Stage\n\n### Metabolism\nEnzyme\nAllosteric Control\nCovalent Modification\nCatalytic Triad\n    #Asp102-His57-Ser195\n\nUbiquitin-Proteasome System\n    +Ubiquitin-Activating Enzyme\n    +Ubiquitin-Conjugating Enzyme\n    Ubiquitin Ligase\n    Proteasome\n        #19S Regulatory Cap\n        #20S Core\n        #Lys48-linked Polyubiquitin\n        >+Bortezomib\n\nGlucose\n    Hyperglycemia\n    Hypoglycemia\nGalactose\nFructose\n    GLUT5\nGlycolysis\n    Glucokinase\n    Glucose-6-Phosphatase\n        *Von Gierke Disease\n            Hepatomegaly\n    PFK-1\n    Fructose-2,6-Bisphosphate\n    2,3-Bisphosphoglycerate\n        T-State Stabilization\n    +Enolase\n        Fluoride\n    Fast-Twitch Muscle Fiber\n    Slow-Twitch Muscle Fiber\nLink Reaction\n    Pyruvate Dehydrogenase Complex\n    Thiamine Pyrophosphate\n    Lipoic Acid\n    Coenzyme A\n    FAD\n    NAD+\n    *Wernicke-Korsakoff Syndrome\nCori Cycle\n    Pyruvate\n    Lactate\n    Erythrocyte\nGlycogen\n    Glycogenin\n    Non-reducing End\n    Glycogenesis\n        Glycogen Synthase\n        Glycogen Branching \n            *+Andersen Disease\n    Glycogenolysis\n        Glycogen Phosphorylase\n            *McArdle Disease\n            *+Hers Disease\n        Glycogen Debranching Enzyme\n            *Cori Disease\n            Transferase Activity\n            Glucosidase Activity\n    *+Pompe Disease\nCahill Cycle\n    Alanine\nPentose Phosphate Pathway\n    *G6PD Deficiency\n        Jaundice\n        Bilirubin\n        Fava Bean\n        Reactive Oxygen Species\n            Superoxide Anion\n            Hydrogen Peroxide\n                Glutathione\n            Hydroxyl Radical\n*Galactosemia\n    +Galactose-1-Phosphate Uridyltransferase\n    Galactosuria\n    Galactitol\n    Cataract\nAlcohol\n    Fatty Liver\n    Foie Gras\n    *Cirrhosis\n    #Alcohol Flush Reaction\n    >+Disulfiram\n        Aldehyde Dehydrogenase\n\nFatty Acid\n    Palmitic Acid\n    Oleic Acid\n    HMG-CoA Reductase\n        +Mevalonate\n        >Statin\n    Citrate Shuttle\n    Acetyl-CoA Carboxylase\n        Biotin\n        Malonyl-CoA\n    Fatty Acid Synthesis\n        Fatty Acid Synthase\n    Carnitine Shuttle\n        Acyl-CoA Synthetase\n        Carnitine\n        Carnitine Palmitoyltransferase I\n        Carnitine Acyl-Carnitine Translocase\n        Carnitine Palmitoyltransferase II\n    β-Oxidation\n        *MCAD Deficiency\n        *Primary Carnitine Deficiency\n    Ketone Body\n        Ketogenesis\n        Ketolysis\n        Acetone\n            Kussmaul Breathing\n            Fruity Breath\n        Acetoacetate\n        β-Hydroxybutyrate\n        Diabetic Ketoacidosis\n\nTransamination\n    Pyridoxal Phosphate\nGlutamate Dehydrogenase\nUrea Cycle\n    Ammonia\n        Astrocyte\n    Carbamoyl Phosphate\n        N-Acetylglutamate\n    Ornithine\n    Citrulline\n    Aspartate\n    Argininosuccinate\n    Fumarate\n    Arginine\n    Urea\n    *OTC Deficiency\n    +Periportal Hepatocyte\n    +Perivenous Hepatocyte\n\n*Phenylketonuria\n    Biopterin\n    Phenylalanine\n    Tyrosine\n    Phenylalanine Hydroxylase\n    Musty Odor\n    >+Sapropterin\n    >+Pegvaliase\n*Homocystinuria\n    Cystathionine β Synthase\n    Thrombosis\n    #Marfan-Like Body\n    Downward-Inward Lens Subluxation\n*Maple Syrup Urine Disease\n    BCKDH Complex\n    Neurotoxicity\n\nBile Salt\nMicelle\nApolipoprotein C-II\n    Lipoprotein Lipase\nApolipoprotein E\n    LDLR\n    Lipoprotein Receptor-Related Protein\nChylomicron\n    Apolipoprotein B-48\n    Exogenous Lipoprotein Pathway\n    Milky Serum\n    Lacteal\n    Thoracic Duct\n    Left Subclavian Vein\nVLDL\n    Apolipoprotein B-100\n        #LDLR\n    Endogenous Lipoprotein Pathway\nIDL\nLDL\n    Oxidized-LDL\n    Foam Cell\n    Atherosclerosis\nHDL\n    Apolipoprotein A-I\n        Lecithin-Cholesterol Acyltransferase\n        Cholesteryl Ester\n    Reverse Cholesterol Transport\n    ABCA1\n    ABCG1\n    Scavenger Receptor-BI\n    Hepatic Triglyceride Lipase\n+Friedewald Formula\n    #Total Cholesterol is estimated as LDL plus HDL plus TAG over 5\n\n#Nucleotide Metabolism\n    *Lesch-Nyhan Syndrome\n        Hypoxanthine-Guanine Phosphoribosyltransferase\n    *Severe Combined Immunodeficiency (SCID)\n    *PNP Deficiency\n    *Orotic Aciduria\n    >Allopurinol\n        Xanthine Oxidase\n        Uric Acid\n        Gout\n    >Methotrexate\n        Dihydrofolate Reductase\n    >+Probenecid\n    >+Hydroxyurea\n    >5-Fluorouracil\n        >+Capecitabine\n        Thymidylate Synthase\n    >6-Mercaptopurine\n        >+Azathioprine\n\n### Others\n*Guillain-Barré Syndrome\n    +Campylobacter Jejuni\nAtropine\n*Tetanus\n    Botulinum Tetani\n    SNARE Complex\nThalidomide\nChaperone\nHsp70";
+const CONFIX = "### Cell Tissue\nHematoxylin\nEosin\nSilver Salt\nFenestrated Capillary\nAdrenal Gland\n    #Pyramidal\n    #Semilunar\nAlbumin\nGlobulin\nFibrinogen\n\nCell\n\nNucleus\n    Nuclear Envelope\n    Perinuclear Space\n    Nuclear Pore\n        Nucleoporin\n        Central Channel\n        ++FG-NUP\n        Intrinsically Disordered Region\n    Nuclear Lamina\n        Lamin\n    Nuclear Basket\n    Karyopherin\n        Importin\n            Nuclear Localization Signal\n        Exportin\n            Nuclear Export Signal\n    +Ran-GTP\n    +NF-κB\n    mRNA\n        Exporter Complex\n        pre-mRNA\n            Intron\n            Exon\n            5'-Capping\n                7-Methylguanosine\n            3'-Polyadenylation\n    Chromatin\n        Euchromatin\n        Heterochromatin\n\n    Topologically Associated Domain\n        Cohesin\n        +CTCF\n    Nucleolus-Associated Domain\n    Lamina-Associated Domain\n    Replication Factory\n    Transcription Hub\n    Nuclear Body\n        Nucleolus\n            +Fibrillar Center\n            +Dense Fibrillar Component\n            +Granular Component\n        Polycomb Body\n            #Area of heterochromatin (DNA silencing)\n        Cajal Body\n            #Area of snRNP concentration for pre-mRNA splicing\n            #Nuclear Speckle\n\nRough Endoplasmic Reticulum\n    Free Ribosome\n    Bound Ribosome\n    Translocon\n        #moves newly made polypeptide across lipid bilayers\n    Transmembrane Protein\n    +Guided Entry of Tail-Anchored\n    +ER Membrane Protein Complex\n    N-linked Glycosylation\n    Glycosylphosphatidylinositol Anchoring\n    Protein Folding\n        Chaperone\n            Hsp70\n            Chaperonin\n            +Calreticulin\n        Protein Disulfide Isomerase\n        Peptidyl Prolyl Isomerase\n    Peroxisome\n        Peroxin\n        Photorespiration\n        +Glyoxysome\n        #Beta-Oxidation of VLCFA\n        #Myelin Sheath Phospholipid Creation\n        Catalase\n        #Alcohol Destruction\n        Plasmalogen\n\nSmooth Endoplasmic Reticulum\n    Sarcoplasmic Reticulum\n        #Stores Calcium in the Muscle\n    Ceramide\n\nER-Golgi Intermediate Compartment\n\nGolgi Apparatus\n    Cisternae\n    Lysosome\n        Mannose-6-Phosphate\n        Acid Hydrolase\n        Autophagy\n            Autophagosome\n                ++Atg\n            Mitophagy\n    O-Linked Glycosylation\n    Vesicular Transport\n        Dynamin Ring\n        COPI\n        COPII\n        Clathrin\n            Triskelion\n            +Lattice\n            ++Arf\n        Vesicle Docking\n            #SNARE\n\nMitochondria\n    Matrix\n    Inner Mitochondrial Membrane\n        Cristae\n        Cardiolipin\n    Intermembrane Space\n    #Outer Mitochondrial Membrane\n    Fission\n    Fusion\n\nCytoskeleton\n    Microfilament\n    #7nm, tension resistance\n        Actin\n            Actin Filament\n            Terminal Web\n            +Cofilin\n        Myosin\n        Tropomyosin\n        Troponin\n            Calcium\n        #Specialized Structure\n            Microvilli\n                #Enterocyte, PCT\n            Basolateral Membrane Infolding\n                #Thick Ascending Limb, DCT, Slender Mitochondria\n            Stereocilia\n                Epididymis\n                Organ of Corti\n    Intermediate Filament\n    #8-12nm, tension resistance\n        Keratin\n        #Lamin\n        Desmin\n        Neurofilament\n        #GFAP\n    Microtubule\n    #15nm, compression resistance\n        Tubulin\n        Centrosome\n        Dynein\n        Kinesin\n        Radial Spoke\n        +Nexin\n        #Specialized Structure\n            Centriole\n            Cilia\n                Primary Cilia\n                    #Bile duct & Pancreatic duct\n                Motile Cilia\n                    #Respiratory Epithelium\n            Flagella\n            Basal Body\n\n#Cell Signaling\n    Autocrine\n    Paracrine\n    Juxtacrine\n    Endocrine\n    Neuroendocrine\n    G-Protein Coupled Receptor\n    Receptor Tyrosine Kinase\n    JAK-STAT\n        Janus Kinase\n\n#Somatic Cell Turnover\nCyclin-CDK Complex\nRetinoblastoma\nE2F\n>Vinca Alkaloids\n>Paclitaxel\n>+Bleomycin\n>+Dactinomycin\n>Etoposide\n>+Doxorubicin\n\n#Cell Death\nApoptosis\nNecrosis\n\n#Tissue\n\n#Epithelial Tissue\n    Simple Squamous Epithelium\n    Simple Cuboidal Epithelium\n    Simple Columnar Epithelium\n    Stratified Epithelium\n    Pseudostratified\n    Transitional Epithelium\n    Urothelium\n    #Glands\n        #Exocrine Gland\n            Merocrine\n            Eccrine\n            Apocrine\n            Holocrine\n            Goblet Cell\n            Crypts of Lieberkühn\n            Sweat Gland\n            Gastric Gland\n            Brunner's Gland\n            Sebaceous Gland\n            Salivary Gland\n                Serous Demilune\n                    ++Crescent of Giannuzzi\n                    ++Demilune of Heidenhain\n            Mammary Gland\n\n#Connective Tissue\n    #Fetal CNT\n        #Mesenchymal CNT\n        #Mucous CNT\n            Wharton's Jelly\n\n    Connective Tissue Proper\n        Fibroblast\n        Myofibroblast\n    #Loose CNT\n        Lamina Propia\n    #Dense CNT\n        #Irregular\n            Dermis\n        #Regular\n            #Collagenous\n                Tendon\n                Ligament\n            #Elastic\n                Ligamentum Flavum\n                Ligamentum Nuchae\n    #CNT Proper with unique properties\n        Reticular CNT\n            Argyrophil\n            Reticular Fiber\n        Adipose Tissue\n            Adipocyte\n                Signet Ring\n                Beige Fat\n        Pigmented CNT\n            Melanocyte\n                Melanin\n            Melanophore\n            Chromatophore\n\n    #Specialized CNT\n        Blood\n        Bone\n        Cartilage\n#Neural Tissue\n    Neuron\n    #Neuron Types\n        Unipolar\n        Pseudounipolar\n        Bipolar\n        Multipolar\n        Sensory Neuron\n        Motor Neuron\n        Purkinje Cell\n            #Found in cerebellar cortex\n    Glial Cell\n        Microglia\n        Astrocyte\n        Ependymal Cell\n            Cerebrospinal Fluid\n        Oligodendrocyte\n            Myelin Sheath\n            Node of Ranvier\n        Schwann Cell\n        Satellite Cell\n\n#Muscular Tissue\nSkeletal Muscle\n    T-tubule\nCardiac Muscle\n    Intercalated Disc\nSmooth Muscle\n    Peristalsis\n\n### Endocrinology\n\nPulsatile Secretion\nCounterregulatory Hormone\nReceptor Downregulation\n\nHypothalamus\n    +Paraventricular Nucleus\n    +Supraoptic Nucleus\n    CRH\n    TRH\n    GnRH\n    GHRH\n    Somatostatin\n        >+Octreotide\n        >+Lanreotide\n    LRH\n    Dopamine\n        >+Cabergoline\n        >+Bromocriptine\n\nHypothalamo-hypophyseal System\n\nAdenohypophysis\n    Pituitary Adenoma\n    #Basophil\n    ACTH\n    TSH\n    FSH\n        Estrogen\n        +Inhibin\n            Sertoli Cell\n            Androgen Binding Protein\n    LH\n        Testosterone\n            Leydig Cell\n        Amenorrhea\n        Oligomenorrhea\n    #Acidophil\n    #Somatotroph\n    Growth Hormone\n        +Somatomedin A\n        Somatomedin C\n            Insulin-like Growth Factor-1\n        +Osteocalcin\n        #Activates Vitamin D\n        #Linear Bone Growth\n        Osteoporosis\n        Osteopetrosis\n        Deep Sleep\n        *Dwarfism\n        *Gigantism\n        *Acromegaly\n            Macrognathia\n            Prognathism\n    #Mammotroph\n    Prolactin\n        Mammogenesis\n        Lactogenesis\n        Galactopoiesis\n        #Inhibits GnRH\n        Hyperprolactinemia\n            Gynecomastia\n            Galactorrhea\n            #Hirsutism\n            Hyperprolactinemic Hypogonadism\n    *Sheehan's Syndrome\n        Postpartum Hemorrhage\n        Ischemia\n    Chromophobe\n    Folliculostellate Cell\n\n\nNeurohypophysis\n    Herring Bodies\n        ADH\n            Arginine Vasopressin\n            +Lysine Vasopressin\n            +Osmoreceptor Cell\n            Aquaporin 2\n                +Lithium\n            *Diabetes Insipidus\n            *Nephrogenic Diabetes Insipidus\n                Polyurea\n                Polydipsia\n            SIADH\n            +Desmopressin\n            +Democlocycline\n        Oxytocin\n            Myoepithelial Cell\n            Suckling Reflex\n            #Stops Postpartum Hemorrhage\n        +Neurophysin\n    Pituicyte\n\nPars Intermedia\n    Proopiomelanocortin\n        +CLIP\n    Rathke's Pouch\n    MSH\n\nPineal Gland\n    Melatonin\n    Circadian Rhythm\n\nAdrenal Cortex\n    Cholesterol\n    P450scc\n    Pregnenolone\n    Zona Glomerulosa\n        Aldosterone\n        RAAS\n            Renin\n            Angiotensin I\n            Angiotensin Converting Enzyme\n                Captopril\n            Angiotensin II\n        *Conn's Syndrome\n    Zona Fasciculata\n        Glucocorticoid\n            Erythropoietin\n        Cortisol\n            Transcortin\n        Addison's Disease\n            Hyperpigmentation\n            Hypovolemic Shock\n        *Cushing Syndrome\n            Buffalo Hump\n            Moon Face\n            Purple Striae\n            Central Obesity\n            Polyphagia\n            +Polycytemia\n        Cushing's Disease\n        +>Prednisolone\n        >Dexamethasone\n    Zona Reticularis\n        Dehydroepiandrosterone (DHEA)\n        +Estrone\n        Estradiol\n        Adrenal Androgen\n        *Congenital Adrenal Hyperplasia\n        Virilization\n        Hirsutism\n        Adrenarche\n        Libido\n        Ambiguous Genitalia\n        Precocious Puberty\nAdrenal Medulla\n    Chromaffin Cell\n        Norepinephrine\n        Epinephrine\n        Vanillylmandelic Acid\n        Adrenergic Receptor\n    Pheochromocytoma\n    Phenylethanolamine-N-Methyltransferase\n    Catechol-O-Methyltransferase\n    Monoamine Oxidase\n\nParathyroid Gland\n    \n    Parathyroid Chief Cell\n        PTH\n            RANKL\n                +Cathepsin K\n            Osteoprotegerin\n                #Activated by Estrogen\n            Hydroxyapatite\n            1α-Hydroxylase\n            Calcitriol\n            +1,25-Dihydroxycholecalciferol\n                +Transient Receptor Potential Vanilloid 6 (TRPV6)\n            +Transient Receptor Potential Vanilloid 5 (TRPV5)\n            +Calbindin\n            +Sodium-Calcium Exchanger (NCX)\n            +PMCA\n        ++Fibroblast Growth Factor 23\n            +Hypophosphatemic Rickets\n        Calcium-Sensing Receptor\n        #Intermittent PTH actually promotes bone formation\n            ++Sclerostin\n        #Magnesium has biphasic effect on PTH release\n    +Oxyphil Cell\n    +PTH1R\n        +PTHrP\n    +PTH2R\n        ++TIP39\n#Parathyroid Diseases\n    *Primary Hyperparathyroidism\n        #Calcium high, Phosphate low, PTH high\n        Hypercalciuria\n        Nephrolithiasis\n    *Secondary Hyperparathyroidism\n        #Usually with CKD, Calcium low-normal, Phosphate high, PTH high\n    Tertiary Hyperparathyroidism\n        #Prolonged Secondary Hyperthyroidism, Calcium High, Phosphate High, PTH High\n    *Hypoparathyroidism\n    *Pseudohypoparathyroidism\nCalcium Homeostasis\n    Ionized Calcium\n    Chvostek Sign\n    Carpopedal Spasm\n    Trosseau Sign\n    Osteoblast\n    Osteoclast\n    *Humoral Hypercalcemia of Malignancy\n        #PTHrP high, PTH low, Calcium high, Phosphate low\n    +Calcinosis\n        #High vitamin D causes calcification of soft tissues\n    +Cardiac Arrhythmia\n    Menopause\n\nThyroid Gland\n    Flapping Tremor\n    Pitting Edema\n    Thyroid Follicular Cell\n        Sodium-Iodide Exchanger (NIS)\n        +Pendrin\n        Thyroglobulin\n        Organification\n        Iodination\n        Coupling\n            Monoiodothyronine\n            Diiodothyronine\n        Thyroid Peroxidase\n        Thyroxine (T4)\n            Mucopolysaccharide\n            #High level leads to protein breakdown\n            *Cretinism\n            *Myxedema\n                Periorbital Myxedema\n            *Hashimoto Thyroiditis\n            *Graves' Disease\n                Acropachy\n                Pretibial Myxedema\n                Exophthalmos\n        Triiodothyronine (T3)\n            UCP-1\n            Thermogenin\n        Thyroid Binding Globulin (TBG)\n        5'-Deiodinase\n        Wolff-Chaikoff Effect\n        Jod-Basedow Effect\n        Goitrogen\n            #Found in raw broccoli, raw cabbage\n    Thyroid Parafollicular Cell\n        Calcitonin\n\nIslets of Langerhans\n    Alpha Cell\n        Glucagon\n        Hormone-Sensitive Lipase\n    Beta Cell\n        Insulin\n        *Diabetes Mellitus Type I\n        *Diabetes Mellitus Type II\n            Acanthosis Nigricans\n        GLUT4\n        Crystalline Core\n    Delta Cell\n        #Somatostatin\n    F Cell\n        Pancreatic Polypeptide\n\n### Genetics\nEpigenetics\n    Histone Modification\n    DNA Methylation\n    Non-coding RNAs\n\n#Non-Coding RNA\n    Housekeeping Non-Coding RNA\n        tRNA\n        rRNA\n        snRNA\n            snRNP\n            +Snurportin\n        snoRNA\n    Regulatory Non-Coding RNA\n        miRNA\n        siRNA\n        piRNA\n        LncRNA\n\nTranscription\n    #DNA Sequence\n        Enhancer\n        Silencer\n    Transcription Factor\n        Activator\n        Repressor\nTranslation\n\n#Techniques\nSodium Dodecyl Sulfate\n    #Destroys Phospholipid Bilayer of the Cell\nProteinase K\n    #Destroys Histone Protein\nEthylenediaminetetraacetic Acid\nRestriction Enzyme\nRestriction Site\n    Blunt End\n    Sticky End\nPalindrome\nExonuclease\nEndonuclease\nGel Electrophoresis\n    Agarose Gel\n    Acrylamide Gel\nDNA Ladder\nSouthern Blotting\n    #DNA\nNorthern Blotting\n    #RNA\nWestern Blotting\n    #protein\nAnneal\nHybridisation\nPolymerase Chain Reaction\n    Thermus aquaticus\nSanger Sequencing\nRecombinant DNA\n    Plasmid\n    Vector\nDNA Cloning\n    Dolly The Sheep\n\n### Embryology\nPrimordial Germ Cell\nSpermatogenesis\n    Blood-Testis Barrier\nSpermiogenesis\nOogenesis\n    Diplotene\n    #Metaphase II\nCapacitation\nFimbriae\n#Infundibulum\nAmpulla\n#Isthmus\n#Intramural\nAcrosomal Reaction\nCortical Reaction\nRapid Depolarization\nZona Reaction\nFertilization\nZygote\nEmbryo\nZona Pellucida\nCorona Radiata\nBlastomere\nBlastocyst\nBlastocele\nEmbryoblast\n    Inner Cell Mass\nTrophoblast\n    Outer Cell Mass\n    Cytotrophoblast\n    Syncytiotrophoblast\n    Chorionic Villi\nImplantation\n    Fibrin Coagulum\nBilaminar Disc\n    Amniotic Membrane\n        Amnioblast\n    Amniotic Cavity\n    Epiblast\n    Hypoblast\n    Exocoelomic Cavity\n    Heuser's Membrane\n        Primitive Yolk Sac\n        Primary Umbilical Vesicle\nLacunae\nSinusoid\nExtraembryonic Mesoderm\n    Extraembryonic Somatic Mesoderm\n    Extraembryonic Splanchnic Mesoderm\n    Chorionic Cavity\n    Connecting Stalk\n    Exocoelomic Cyst\n    Secondary Umbilical Vesicle\n    Definitive Yolk Sac\nTrilaminar Disc\n    Ectoderm\n        Surface Ectoderm\n        Neuroectoderm\n            Neural Plate\n            Neural Fold\n            +Median Hinge Point\n            Neural Tube\n            Neural Crest Cell\n            Neuropore\n                *Anencephaly\n                *Spina Bifida\n    Mesoderm\n        *Sirenomelia\n        Paraxial Mesoderm\n            Dermatome\n            Myotome\n            Sclerotome\n        Intermediate Mesoderm\n        Lateral Plate Mesoderm\n            Somatopleure\n            Splanchnopleure\n                #Cardiogenic Area\n                    Cardiac Crescent\n                    Heart Tube\n                    +Cardiac Jelly\n                    +Sinus Venosus\n                        +Common Cardinal Vein\n                        +Umbilical Vein\n                        +Vitelline Vein\n                    +Sinuatrial Orifice\n                        #Left Venous Valve\n                        #Right Venous Valve\n                            +Eustachian Valve\n                            +Thebesian Valve\n                        +Septum Spurium\n                    +Primitive Atria\n                    +Atrioventricular Canal\n                    +Primitive Ventricle\n                    +Bulboventricular Sulcus\n                    +Conus Cordis\n                    +Truncus Arteriosus\n                    +Bulbus Cordis\n                    +Aortic Sac\n                    ++Sinus Venarum\n                    ++Crista Terminalis\n                    ++Trabeculae Carneae\n                        Chordae Tendineae\n                        Papillary Muscle\n                    ++Musculi Pectinati\n                    ++Septum Intermedium\n                    ++Septum Primum\n                    ++Ostium Primum\n                    ++Ostium Secundum\n                    ++Septum Secundum\n                    ++Foramen Ovale\n                    ++Fossa Ovalis\n                    ++Aorticopulmonary Septum\n                    +Endocardial Cushion\n                    ++Conus Arteriosus\n                    ++Aortic Vestibule\n                    Interventricular Septum\n                    Pericardium\n                    Tricuspid Valve\n                    Mitral Valve\n                    Aortic Semilunar Valve\n                    Pulmonary Semilunar Valve\n                    Superior Vena Cava\n                    Inferior Vena Cava\n                    Coronary Artery\n                    Coronary Sinus\n                        +Oblique Vein of Left Atrium\n                    Pulmonary Vein\n                    Ascending Aorta\n                    Brachiocephalic Trunk\n                        Subclavian Artery\n                        Common Carotid Artery\n                    Aortic Arch\n                    Pulmonary Trunk\n                    Pulmonary Artery\n                    +Ductus Arteriosus\n                    +Ligamentum Arteriosum\n    Endoderm\n        Foregut\n        Midgut\n        Hindgut\n+Epithelial-to-Mesenchymal Transition\n++FGF8\n++SNAIL\n++SLUG\n++E-cadherin\nOropharyngeal Membrane\n    Prechordal Plate\nCloacal Membrane\nPrimitive Streak\nPrimitive Groove\nHensen's Node\n    Notochordal Process\n    Primitive Pit\n    Notochordal Canal\n    +Notochordal Plate\n    Neurenteric Canal\nNotochord\nBlood Island\nVasculogenesis\n    Hemangioma\nAngiogenesis\n\n\nBlastopore\n    Protostome\n    Deuterostome\n    #Filopodia\nSonic Hedgehog\nRetinoic Acid\nMorphogen Gradient\nParent-Specific Imprint\n\n#Embryo Animal Model\nCaenorhabditis elegans\nDrosophila Melanogaster\nDanio rerio\nXenopus laevis\nXenopus tropicalis\nGallus gallus\nMus musculus\nPapio hamadryas\n\nSitus inversus\nRight isomerism\nLeft isomerism\nCarnegie Stage\n\n### Metabolism\nEnzyme\nSurface Area\nCompetitive Inhibitor\nUncompetitive Inhibitor\nNoncompetitive Inhibitor\nAllosteric Control\nCovalent Modification\nProteolytic Cleavage\nActivation Energy\nCatalytic Triad\n    Serine Protease\n    #Asp102-His57-Ser195\n\nUbiquitin-Proteasome System\n    +Ubiquitin-Activating Enzyme\n    +Ubiquitin-Conjugating Enzyme\n    Ubiquitin Ligase\n    Proteasome\n        #19S Regulatory Cap\n        #20S Core\n        #Lys48-linked Polyubiquitin\n        >+Bortezomib\n\nGlucose\n    Hyperglycemia\n    Hypoglycemia\nGalactose\nFructose\n    GLUT5\nGlycolysis\n    Glucokinase\n    Glucose-6-Phosphatase\n        *Von Gierke Disease\n            Hepatomegaly\n    PFK-1\n    Fructose-2,6-Bisphosphate\n    2,3-Bisphosphoglycerate\n        T-State Stabilization\n    +Enolase\n        Fluoride\n    Fast-Twitch Muscle Fiber\n    Slow-Twitch Muscle Fiber\nLink Reaction\n    Pyruvate Dehydrogenase Complex\n    Thiamine Pyrophosphate\n    Lipoic Acid\n    Coenzyme A\n    FAD\n    NAD+\n    *Wernicke-Korsakoff Syndrome\nCori Cycle\n    Pyruvate\n    Lactate\n    Erythrocyte\nGlycogen\n    Glycogenin\n    Non-reducing End\n    Glycogenesis\n        Glycogen Synthase\n        Glycogen Branching \n            *+Andersen Disease\n    Glycogenolysis\n        Glycogen Phosphorylase\n            *McArdle Disease\n            *+Hers Disease\n        Glycogen Debranching Enzyme\n            *Cori Disease\n            Transferase Activity\n            Glucosidase Activity\n    *+Pompe Disease\nCahill Cycle\n    Alanine\nPentose Phosphate Pathway\n    *G6PD Deficiency\n        Jaundice\n        Bilirubin\n        Fava Bean\n        Reactive Oxygen Species\n            Superoxide Anion\n            Hydrogen Peroxide\n                Glutathione\n            Hydroxyl Radical\n*Galactosemia\n    +Galactose-1-Phosphate Uridyltransferase\n    Galactosuria\n    Galactitol\n    Cataract\n        Crystallin\nAlcohol\n    Fatty Liver\n    Foie Gras\n    *Cirrhosis\n    #Alcohol Flush Reaction\n    >+Disulfiram\n        Aldehyde Dehydrogenase\n\nFatty Acid\n    Palmitic Acid\n    Oleic Acid\n    HMG-CoA Reductase\n        +Mevalonate\n        >Statin\n    Citrate Shuttle\n    Acetyl-CoA Carboxylase\n        Biotin\n        Malonyl-CoA\n    Fatty Acid Synthesis\n        Fatty Acid Synthase\n    Carnitine Shuttle\n        Acyl-CoA Synthetase\n        Carnitine\n        Carnitine Palmitoyltransferase I\n        Carnitine Acyl-Carnitine Translocase\n        Carnitine Palmitoyltransferase II\n        +OCTN2\n    β-Oxidation\n        *MCAD Deficiency\n        *Primary Carnitine Deficiency\n    Ketone Body\n        Ketogenesis\n        Ketolysis\n        Acetone\n            Kussmaul Breathing\n            Fruity Breath\n        Acetoacetate\n        β-Hydroxybutyrate\n        Diabetic Ketoacidosis\n\nTransamination\n    Pyridoxal Phosphate\nGlutamate Dehydrogenase\nUrea Cycle\n    Ammonia\n        Astrocyte\n    Carbamoyl Phosphate\n        N-Acetylglutamate\n    Ornithine\n    Citrulline\n    Aspartate\n    Argininosuccinate\n    Fumarate\n    Arginine\n    Urea\n    *OTC Deficiency\n    +Periportal Hepatocyte\n    +Perivenous Hepatocyte\n\n*Phenylketonuria\n    Biopterin\n    Phenylalanine\n    Tyrosine\n    Phenylalanine Hydroxylase\n    Musty Odor\n    Hypopigmentation\n    >+Sapropterin\n    >+Pegvaliase\n*Homocystinuria\n    Cystathionine β Synthase\n    Thrombosis\n    #Marfan-Like Body\n    Downward-Inward Lens Subluxation\n*Maple Syrup Urine Disease\n    BCKDH Complex\n    Neurotoxicity\n\nBile Salt\nMicelle\nApolipoprotein C-II\n    Lipoprotein Lipase\n+Apolipoprotein C-III\nApolipoprotein E\n    LDLR\n    Lipoprotein Receptor-Related Protein\nChylomicron\n    Apolipoprotein B-48\n    Exogenous Lipoprotein Pathway\n    Milky Serum\n    Lacteal\n    Thoracic Duct\n    Left Subclavian Vein\nVLDL\n    Apolipoprotein B-100\n        #LDLR\n    Endogenous Lipoprotein Pathway\nIDL\nLDL\n    Oxidized-LDL\n    Foam Cell\n    Atherosclerosis\nHDL\n    Apolipoprotein A-I\n        Lecithin-Cholesterol Acyltransferase\n        Cholesteryl Ester\n    Reverse Cholesterol Transport\n    Cholesteryl Ester Transfer Protein\n    ABCA1\n    ABCG1\n    Scavenger Receptor-BI\n    Hepatic Triglyceride Lipase\nFriedewald Formula\n    #Total Cholesterol is estimated as LDL plus HDL plus TAG over 5\nStanding Plasma Test\n#Diseases\n    Familial Hypercholesterolemia\n        Mona Lisa\n    Tuberoeruptive Xanthoma\n\n#Nucleotide Metabolism\n    *Lesch-Nyhan Syndrome\n        Hypoxanthine-Guanine Phosphoribosyltransferase\n    *Severe Combined Immunodeficiency (SCID)\n    *PNP Deficiency\n    *Orotic Aciduria\n    >Allopurinol\n        Xanthine Oxidase\n        Uric Acid\n        Gout\n    >Methotrexate\n        Dihydrofolate Reductase\n    >+Probenecid\n    >+Hydroxyurea\n    >5-Fluorouracil\n        >+Capecitabine\n        Thymidylate Synthase\n    >6-Mercaptopurine\n        >+Azathioprine\n\n### Others\n\n*Guillain-Barré Syndrome\n    +Campylobacter Jejuni\nAtropine\n*Tetanus\n    Botulinum Tetani\n    SNARE Complex\nAlpha Helix\nBeta-Pleated Sheet\n*Transmissible Spongiform Encephalopathy\n    Scrapie\n    Prion\nThalidomide\nAlzheimer\n    Amyloid-β\n    Tau\nParkinson's Disease\n    α-Synuclein\nParavertebral Ganglia\n    Horner's Syndrome\n    Pancoast Tumor\nPrevertebral Ganglia\nHirschsprung's Disease\nTracheoesophageal Fistula\nHamstring\nAchilles Tendon";
 
 /* ===== Word engine: parses the confix and evaluates category expressions ===== */
 /*ENGINE-START*/
@@ -530,18 +568,25 @@ const ENGINE=buildEngine(CONFIX);
 /* ===== Settings ===== */
 const TILT_DEG=45, REARM_DEG=38, HOLD_MS=140;
 const DEFAULT_COLORS={c1:"#1d0e07",c2:"#2c170d",c3:"#fff3e3",c4:"#f27a1e",okTx:"#06240f",okBg:"#27b56a",skTx:"#fff3e3",skBg:"#7d2a18"};
+const RB_STATIC_H=200;          // hue used for Rainbow when effects are off
+const RB_LEG=70000;             // ms to go from red to purple; the colors then turn back the same way
+const RB_T0=performance.now();
+/* norm = [normal background, normal text] as menu color numbers 1 to 4 */
 const PRESETS=[
-  {name:"Palida",c:{c1:"#f8f6df",c2:"#d5eec0",c3:"#2e4a22",c4:"#fda2bc",okTx:"#1d3a12",okBg:"#a9dd82",skTx:"#fff7f2",skBg:"#de4c6a"}},
-  {name:"Thai Tea",c:DEFAULT_COLORS},
-  {name:"Matcha",c:{c1:"#0f1f14",c2:"#1b3322",c3:"#eef5e6",c4:"#9ccc4a",okTx:"#07210f",okBg:"#2fbf71",skTx:"#fdeee8",skBg:"#8e3a22"}},
-  {name:"Taro",c:{c1:"#1a1226",c2:"#2a1d3d",c3:"#f3ecff",c4:"#b58cf2",okTx:"#062416",okBg:"#35c07b",skTx:"#fff0f0",skBg:"#8a2c4a"}},
-  {name:"Paper",c:{c1:"#f6efe6",c2:"#e6d9c8",c3:"#2a1710",c4:"#d9591e",okTx:"#ffffff",okBg:"#23864f",skTx:"#ffffff",skBg:"#a73a24"}}
+  {name:"Flower",fx:"flower",norm:[4,3],c:{c1:"#f8f6df",c2:"#d5eec0",c3:"#2e4a22",c4:"#fda2bc",okTx:"#1d3a12",okBg:"#a9dd82",skTx:"#fff7f2",skBg:"#de4c6a"}},
+  {name:"Ocean",fx:"ocean",norm:[4,1],c:{c1:"#06283d",c2:"#0c3f5e",c3:"#e8f8ff",c4:"#3cc0ea",okTx:"#04281a",okBg:"#4fe0a0",skTx:"#fff4f0",skBg:"#d83f4f"}},
+  {name:"Rainbow",fx:"rainbow",norm:[1,3],c:rainbowColors(RB_STATIC_H)},
+  {name:"Thai Tea",fx:"",norm:[4,1],c:DEFAULT_COLORS},
+  {name:"Matcha",fx:"",norm:[4,1],c:{c1:"#0f1f14",c2:"#1b3322",c3:"#eef5e6",c4:"#9ccc4a",okTx:"#07210f",okBg:"#2fbf71",skTx:"#fdeee8",skBg:"#8e3a22"}},
+  {name:"Taro",fx:"",norm:[4,1],c:{c1:"#1a1226",c2:"#2a1d3d",c3:"#f3ecff",c4:"#b58cf2",okTx:"#062416",okBg:"#35c07b",skTx:"#fff0f0",skBg:"#8a2c4a"}},
+  {name:"Paper",fx:"",norm:[4,3],c:{c1:"#f6efe6",c2:"#e6d9c8",c3:"#2a1710",c4:"#d9591e",okTx:"#ffffff",okBg:"#23864f",skTx:"#ffffff",skBg:"#a73a24"}}
 ];
+const SLIDE_NAMES=["Flower","Ocean","Rainbow"];   // the three themes on the slid-over page
 const COLOR_FIELDS=[
   {k:"c1",label:"Color 1",note:"Menu background",grp:"menu"},
   {k:"c2",label:"Color 2",note:"Panels and buttons",grp:"menu"},
   {k:"c3",label:"Color 3",note:"Menu text",grp:"menu"},
-  {k:"c4",label:"Color 4",note:"Accent and normal in-game background",grp:"menu"},
+  {k:"c4",label:"Color 4",note:"Accent color",grp:"menu"},
   {k:"okTx",label:"Correct text",note:"In game",grp:"game"},
   {k:"okBg",label:"Correct background",note:"In game",grp:"game"},
   {k:"skTx",label:"Skip text",note:"In game",grp:"game"},
@@ -549,7 +594,9 @@ const COLOR_FIELDS=[
 ];
 const ROUND_LENGTHS=[60,90,120,150,180,210];
 const STARTER=["Chloramphenicol","Methotrexate","Hydroxyurea","Febuxostat","6-Mercaptopurine","Probenecid"];
-const cfg={seconds:90,sound:true,mode:"builtin",expr:"All",custom:STARTER.join("\n"),sign:0,colors:Object.assign({},DEFAULT_COLORS)};
+const REDUCED=(()=>{try{return window.matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}})();
+const cfg={seconds:90,sound:true,mode:"builtin",expr:"All",custom:STARTER.join("\n"),sign:0,colors:Object.assign({},DEFAULT_COLORS),
+           theme:"Thai Tea",normBg:4,normTx:1,effects:!REDUCED};
 
 const $=id=>document.getElementById(id);
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
@@ -564,7 +611,16 @@ function saveCfg(){lsSet("chaperone.cfg",JSON.stringify(cfg))}
     if(typeof j.expr==="string")cfg.expr=j.expr;
     if(typeof j.custom==="string"&&j.custom.trim())cfg.custom=j.custom;
     if(j.sign===1||j.sign===-1)cfg.sign=j.sign;
+    if(typeof j.effects==="boolean")cfg.effects=j.effects;
     if(j.colors&&typeof j.colors==="object")for(const k in DEFAULT_COLORS)if(/^#[0-9a-f]{6}$/i.test(j.colors[k]))cfg.colors[k]=j.colors[k];
+    const okIdx=v=>v===1||v===2||v===3||v===4;
+    if(okIdx(j.normBg)&&okIdx(j.normTx)&&j.normBg!==j.normTx){cfg.normBg=j.normBg;cfg.normTx=j.normTx}
+    else{cfg.normBg=4;cfg.normTx=contrast(cfg.colors.c4,cfg.colors.c1)>=contrast(cfg.colors.c4,cfg.colors.c3)?1:3}
+    if(typeof j.theme==="string"&&(j.theme===""||PRESETS.some(p=>p.name===j.theme)))cfg.theme=j.theme;
+    else{
+      const m=PRESETS.find(p=>p.fx!=="rainbow"&&COLOR_FIELDS.every(f=>cfg.colors[f.k].toLowerCase()===p.c[f.k].toLowerCase()));
+      cfg.theme=m?m.name:"";
+    }
   }else{
     const w=lsGet("chayen.words");if(w&&w.trim())cfg.custom=w;   // word list from the earlier version
     const s=parseInt(lsGet("chayen.seconds"),10);if(ROUND_LENGTHS.indexOf(s)>-1)cfg.seconds=s;
@@ -606,33 +662,74 @@ function headColor(c){
   }
   return c.c3;
 }
+
+/* Rainbow: dark, softly tinted menu colors whose hue drifts red, orange, yellow, green, cyan, blue, purple, then back */
+function rainbowColors(h){
+  const f=(s,l)=>rgbHex(hslRgb(h,s,l));
+  return {c1:f(.5,.11),c2:f(.45,.18),c3:f(.7,.94),c4:f(.85,.62),okTx:"#04281a",okBg:"#3fd08a",skTx:"#fff4f0",skBg:"#d84a5a"};
+}
+function rainbowHue(now){
+  const u=((now-RB_T0)/RB_LEG)%2,v=u<1?u:2-u;
+  return 280*(1-Math.cos(Math.PI*v))/2;      // eased, so it slows down at both ends
+}
+let rbTimer=0,rbCount=0;
+function rbTick(){cfg.colors=rainbowColors(rainbowHue(performance.now()));applyColors({tick:true})}
+function syncFx(){
+  clearInterval(rbTimer);rbTimer=0;
+  if(cfg.theme==="Rainbow"){
+    if(cfg.effects){rbTimer=setInterval(rbTick,250);rbTick()}
+    else{cfg.colors=rainbowColors(RB_STATIC_H);applyColors()}
+  }
+  paintFx();
+}
+
 let pOpen=false;
-function presetMatch(p){return COLOR_FIELDS.every(f=>cfg.colors[f.k].toLowerCase()===p.c[f.k].toLowerCase())}
 function paintPresets(){
   const cells=$("presetSeg").children;
   if(!cells.length)return;
-  let sel=null;
   PRESETS.forEach((p,i)=>{
-    const on=presetMatch(p);if(on)sel=p;
-    const cell=cells[i],visible=pOpen?i<4:i>=1;
-    cell.firstChild.setAttribute("aria-pressed",String(on));
+    const cell=cells[i],visible=pOpen?i<=3:i>=3;
+    cell.firstChild.setAttribute("aria-pressed",String(cfg.theme===p.name));
     cell.inert=!visible;cell.setAttribute("aria-hidden",String(!visible));
   });
   $("presetSeg").classList.toggle("open",pOpen);
   const more=$("pMore");
-  more.classList.toggle("on",pOpen||!!(sel&&sel.name==="Paper"));
-  more.textContent=pOpen?"<< Back":"More >>";
+  more.classList.toggle("on",pOpen||cfg.theme==="Paper");
+  more.textContent=pOpen?"Back <<":"More >>";
 }
-function applyColors(){
-  const c=cfg.colors,st=document.documentElement.style;
+function paintNorm(){
+  const c=cfg.colors;
+  [["ccTx","normTx","normBg"],["ccBg","normBg","normTx"]].forEach(r=>{
+    Array.prototype.forEach.call($(r[0]).children,b=>{
+      const i=parseInt(b.dataset.i,10),col=c["c"+i];
+      b.style.setProperty("--sw",col);
+      b.style.setProperty("--swtx",contrast(col,c.c1)>=contrast(col,c.c3)?c.c1:c.c3);
+      b.setAttribute("aria-pressed",String(cfg[r[1]]===i));
+      b.setAttribute("aria-disabled",String(cfg[r[2]]===i));
+    });
+  });
+}
+function paintFxSwitch(){$("fxBtn").setAttribute("aria-checked",String(cfg.effects));$("fxLabel").textContent="Theme effects: "+(cfg.effects?"on":"off")}
+function syncColorUI(){
+  const c=cfg.colors;
+  COLOR_FIELDS.forEach(f=>{const el=$("col-"+f.k);if(el&&el.value!==c[f.k]&&document.activeElement!==el)el.value=c[f.k]});
+  paintNorm();paintPresets();
+}
+function applyColors(opts){
+  const tick=!!(opts&&opts.tick),c=cfg.colors,st=document.documentElement.style;
   const names={c1:"--c1",c2:"--c2",c3:"--c3",c4:"--c4",okTx:"--okTx",okBg:"--okBg",skTx:"--skTx",skBg:"--skBg"};
   for(const k in names)st.setProperty(names[k],c[k]);
+  st.setProperty("--nbg",c["c"+cfg.normBg]);
+  st.setProperty("--ntx",c["c"+cfg.normTx]);
   st.setProperty("--onAccent",contrast(c.c4,c.c1)>=contrast(c.c4,c.c3)?c.c1:c.c3);
   st.setProperty("--head",headColor(c));
   st.setProperty("color-scheme",lum(c.c1)<0.35?"dark":"light");
-  COLOR_FIELDS.forEach(f=>{const el=$("col-"+f.k);if(el&&el.value!==c[f.k])el.value=c[f.k]});
-  paintPresets();
+  if(!tick||(++rbCount%4===0&&S.phase==="settings"))syncColorUI();
   setPage();
+}
+function pickPreset(p){
+  cfg.theme=p.name;cfg.colors=Object.assign({},p.c);cfg.normBg=p.norm[0];cfg.normTx=p.norm[1];
+  syncFx();applyColors();saveCfg();
 }
 function buildColorUI(){
   COLOR_FIELDS.forEach(f=>{
@@ -642,31 +739,134 @@ function buildColorUI(){
     const sm=document.createElement("small");sm.textContent=f.note;sp.appendChild(sm);
     lab.appendChild(inp);lab.appendChild(sp);
     $(f.grp==="menu"?"menuColors":"gameColors").appendChild(lab);
-    inp.addEventListener("input",()=>{cfg.colors[f.k]=inp.value;applyColors();saveCfg()});
+    inp.addEventListener("input",()=>{cfg.theme="";cfg.colors[f.k]=inp.value;syncFx();applyColors();saveCfg()});
+  });
+  [["ccTx","normTx","normBg"],["ccBg","normBg","normTx"]].forEach(r=>{
+    for(let i=1;i<=4;i++){
+      const b=document.createElement("button");b.type="button";b.className="cc";b.dataset.i=i;b.textContent=i;
+      b.setAttribute("aria-label","Color "+i);
+      b.onclick=()=>{
+        if(cfg[r[2]]===i){toast("The word and its background can't be the same color.");return}
+        cfg[r[1]]=i;applyColors();saveCfg();
+      };
+      $(r[0]).appendChild(b);
+    }
   });
   PRESETS.forEach(p=>{
     const cell=document.createElement("div");
     const b=document.createElement("button");b.type="button";b.textContent=p.name;
-    b.onclick=()=>{cfg.colors=Object.assign({},p.c);applyColors();saveCfg()};
+    b.onclick=()=>pickPreset(p);
     cell.appendChild(b);$("presetSeg").appendChild(cell);
   });
-  pOpen=presetMatch(PRESETS[0]);   // start with Palida showing if it is the saved scheme
+  pOpen=SLIDE_NAMES.indexOf(cfg.theme)>-1;   // start on the slid-over page when one of its themes is saved
   $("pMore").onclick=()=>{pOpen=!pOpen;paintPresets()};
-  $("resetColors").onclick=()=>{cfg.colors=Object.assign({},DEFAULT_COLORS);applyColors();saveCfg();toast("Colors reset")};
+  $("resetColors").onclick=()=>{pickPreset(PRESETS.find(p=>p.name==="Thai Tea"));toast("Colors reset")};
+  $("fxBtn").onclick=()=>{cfg.effects=!cfg.effects;saveCfg();paintFxSwitch();syncFx()};
+  paintFxSwitch();
 }
 
 /* ===== State and screens ===== */
 const S={phase:"home",run:0,tilt:false,raw:0,gotMotion:false,armed:false,dir:0,since:0,flash:false,counting:false,
          words:[],deck:[],cur:"",score:0,ok:[],no:[],end:0,timerId:0,deckInfo:{words:[],err:""},playTint:""};
 const SCREENS=["home","settings","calib","play","results"];
-function show(name){S.phase=name;SCREENS.forEach(s=>{$(s).hidden=(s!==name)});setPage()}
+function show(name){S.phase=name;SCREENS.forEach(s=>{$(s).hidden=(s!==name)});setPage();paintFx()}
 function setPage(){
   const st=document.documentElement.style;
   if(S.phase!=="play"){st.removeProperty("--page");return}
-  const c=cfg.colors;st.setProperty("--page",S.playTint==="good"?c.okBg:S.playTint==="skip"?c.skBg:c.c4);
+  const c=cfg.colors;st.setProperty("--page",S.playTint==="good"?c.okBg:S.playTint==="skip"?c.skBg:c["c"+cfg.normBg]);
 }
 function tint(cls){S.playTint=cls;const p=$("play");p.classList.remove("good","skip");if(cls)p.classList.add(cls);setPage()}
 function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{el.hidden=true},2400)}
+
+/* ===== Theme effects (menus only): Flower blossoms, Ocean bubbles, fish and reef ===== */
+const FISH=["\u{1F41F}","\u{1F420}","\u{1F421}","\u{1F988}","\u{1F42C}","\u{1F433}","\u{1F991}","\u{1F419}"];
+const BLOSSOM="\u{1F338}";
+const REEF_SVG='<svg viewBox="0 0 1200 150" preserveAspectRatio="xMidYMax slice" width="100%" height="100%" aria-hidden="true">'
+ +'<path d="M0 150V126Q140 108 300 122T620 120T920 126T1200 118V150Z" fill="#d7b777" opacity=".5"/>'
+ +'<g class="sw" style="animation-delay:-1s"><path d="M70 150C48 124 90 104 64 62" stroke="#2fae7c" stroke-width="9" fill="none" stroke-linecap="round"/></g>'
+ +'<g class="sw" style="animation-delay:-3s"><path d="M96 150C120 126 80 108 104 74" stroke="#47c98f" stroke-width="7" fill="none" stroke-linecap="round"/></g>'
+ +'<g stroke="#ff7a9c" stroke-width="10" stroke-linecap="round" fill="none"><path d="M230 150V108M230 128L206 100M230 120L256 92M206 100L200 78M256 92L264 70"/></g>'
+ +'<g fill="#ffb3c6"><circle cx="200" cy="76" r="6"/><circle cx="264" cy="68" r="6"/><circle cx="230" cy="104" r="6"/></g>'
+ +'<path d="M380 150V122" stroke="#e8893a" stroke-width="8" stroke-linecap="round"/>'
+ +'<path d="M326 124A54 54 0 0 1 434 124Z" fill="#ff9d4d"/>'
+ +'<path d="M380 124L340 92M380 124L362 78M380 124V72M380 124L398 78M380 124L420 92" stroke="#ffd09a" stroke-width="3" stroke-linecap="round" fill="none"/>'
+ +'<rect x="506" y="98" width="22" height="52" rx="11" fill="#a874ee"/><rect x="538" y="76" width="22" height="74" rx="11" fill="#b98af5"/><rect x="570" y="106" width="20" height="44" rx="10" fill="#9a63e6"/>'
+ +'<g fill="#2b1250" opacity=".45"><ellipse cx="517" cy="101" rx="6" ry="3.5"/><ellipse cx="549" cy="79" rx="6" ry="3.5"/><ellipse cx="580" cy="109" rx="5" ry="3"/></g>'
+ +'<polygon points="640,124 644,132 653,133 646,139 648,148 640,143 632,148 634,139 627,133 636,132" fill="#ff8c69"/>'
+ +'<path d="M700 150A62 52 0 0 1 824 150Z" fill="#f2c26b"/>'
+ +'<path d="M720 138q8-10 16 0t16 0 16 0 16 0M728 122q8-10 16 0t16 0 16 0 16 0M744 108q8-10 16 0t16 0" stroke="#d58a3a" stroke-width="3" fill="none" stroke-linecap="round"/>'
+ +'<g stroke="#2ec4b6" stroke-width="9" stroke-linecap="round" fill="none"><path d="M930 150V112M930 130L908 104M930 122L954 96M908 104L902 84M954 96L962 76M930 112V88"/></g>'
+ +'<g fill="#7ff0e2"><circle cx="902" cy="80" r="5"/><circle cx="962" cy="72" r="5"/><circle cx="930" cy="84" r="5"/></g>'
+ +'<g fill="#ff6a5c"><path d="M1030 150Q1024 116 1036 100Q1044 118 1042 150Z"/><path d="M1050 150Q1048 108 1064 94Q1068 120 1062 150Z"/><path d="M1070 150Q1072 122 1088 110Q1086 132 1082 150Z"/></g>'
+ +'<g class="sw" style="animation-delay:-2s"><path d="M1120 150C1100 124 1142 106 1118 66" stroke="#2fae7c" stroke-width="9" fill="none" stroke-linecap="round"/></g>'
+ +'<g class="sw" style="animation-delay:-4s"><path d="M1152 150C1174 128 1134 112 1156 80" stroke="#47c98f" stroke-width="7" fill="none" stroke-linecap="round"/></g>'
+ +'</svg>';
+let fxMode="";
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function fxWanted(){
+  if(!cfg.effects)return "";
+  if(S.phase!=="home"&&S.phase!=="settings"&&S.phase!=="results")return "";
+  const p=PRESETS.find(x=>x.name===cfg.theme);
+  return p&&(p.fx==="flower"||p.fx==="ocean")?p.fx:"";
+}
+function placeBlossom(s,first){
+  s.style.left=rnd(0,95)+"%";s.style.top=rnd(0,90)+"%";
+  s.style.fontSize=rnd(18,64)+"px";
+  s.style.animationDuration=rnd(5,12)+"s";
+  if(first)s.style.animationDelay=(-rnd(0,10))+"s";
+}
+function placeBubble(b,first){
+  const size=rnd(6,34),d=rnd(8,19);
+  b.style.width=b.style.height=size+"px";b.style.left=rnd(0,98)+"%";
+  b.style.animationDuration=d+"s";b.style.setProperty("--sway",rnd(10,36)+"px");
+  if(first)b.style.animationDelay=(-rnd(0,d))+"s";
+}
+function placeFish(el,first){
+  const right=Math.random()<.5,dur=rnd(22,46);
+  el.style.top=rnd(6,70)+"%";
+  el.style.animationName=right?"swimR":"swimL";
+  el.style.animationDuration=dur+"s";
+  el.style.animationDelay=first?(-rnd(0,dur))+"s":"0s";
+  const g=el.querySelector(".gl");
+  g.textContent=FISH[Math.floor(Math.random()*FISH.length)];
+  g.style.fontSize=rnd(26,56)+"px";
+  g.style.transform=right?"scaleX(-1)":"none";   // the fish emoji face left
+}
+function buildFx(mode){
+  const f=$("fxField");f.innerHTML="";fxMode=mode;
+  if(mode==="flower"){
+    const n=Math.max(12,Math.min(26,Math.round(innerWidth/60)));
+    for(let i=0;i<n;i++){
+      const s=document.createElement("span");s.className="fl";s.textContent=BLOSSOM;
+      placeBlossom(s,true);
+      s.addEventListener("animationiteration",e=>{if(e.target===s)placeBlossom(s,false)});
+      f.appendChild(s);
+    }
+  }else{
+    const nb=Math.max(10,Math.min(22,Math.round(innerWidth/70)));
+    for(let i=0;i<nb;i++){
+      const b=document.createElement("span");b.className="bub";placeBubble(b,true);
+      b.addEventListener("animationiteration",e=>{if(e.target===b)placeBubble(b,false)});
+      f.appendChild(b);
+    }
+    for(let i=0;i<6;i++){
+      const el=document.createElement("div");el.className="fish";
+      el.innerHTML='<div class="fi" style="animation-delay:-'+rnd(0,3).toFixed(2)+'s"><span class="gl"></span></div>';
+      placeFish(el,true);
+      el.addEventListener("animationiteration",e=>{if(e.target===el)placeFish(el,false)});
+      f.appendChild(el);
+    }
+    const reef=document.createElement("div");reef.id="reef";reef.innerHTML=REEF_SVG;f.appendChild(reef);
+  }
+}
+function paintFx(){
+  const want=fxWanted(),root=$("fx");
+  document.body.classList.toggle("fx-on",!!want);
+  document.body.classList.toggle("fx-ocean",want==="ocean");
+  if(!want){root.hidden=true;return}
+  root.hidden=false;
+  if(fxMode!==want||!$("fxField").childElementCount)buildFx(want);
+}
 
 /* ===== Sound ===== */
 let ac=null;
@@ -934,7 +1134,7 @@ $("quit").onclick=()=>{if(S.counting){S.run++;clearInterval(S.timerId);S.countin
 $("again").onclick=()=>{audio();startRound()};
 $("toHome").onclick=()=>show("home");
 
-buildColorUI();applyColors();buildDeckUI();paintSound();refreshDeck();syncRlScroll();
+buildColorUI();applyColors();buildDeckUI();paintSound();refreshDeck();syncRlScroll();syncFx();
 
 /* Saving a copy works only when this page runs inside Claude */
 try{
