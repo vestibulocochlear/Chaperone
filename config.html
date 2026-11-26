@@ -33,11 +33,15 @@ Nucleus
     mRNA
         Exporter Complex
         pre-mRNA
+            hnRNA
             Intron
             Exon
             5'-Capping
                 7-Methylguanosine
+                +eIF4E
             3'-Polyadenylation
+                +Polyadenylate-Binding Protein
+            +eIF4
     Chromatin
         Euchromatin
         Heterochromatin
@@ -69,6 +73,7 @@ Rough Endoplasmic Reticulum
     +Guided Entry of Tail-Anchored
     +ER Membrane Protein Complex
     N-linked Glycosylation
+        Dolichol
     Glycosylphosphatidylinositol Anchoring
     Protein Folding
         Chaperone
@@ -92,7 +97,7 @@ Smooth Endoplasmic Reticulum
         #Stores Calcium in the Muscle
     Ceramide
 
-ER-Golgi Intermediate Compartment
+#ER-Golgi Intermediate Compartment
 
 Golgi Apparatus
     Cisternae
@@ -179,6 +184,30 @@ Cytoskeleton
     Receptor Tyrosine Kinase
     JAK-STAT
         Janus Kinase
+    Gap Junction
+        Nexus
+        Connexin
+        Connexon
+    Tight Junction
+        Zonula Occludens
+        Claudin
+        Occludin
+    Adherens Junction
+        Zonula Adherens
+        Cadherin
+    Desmosome
+        Macula Adherens
+        Desmoglein
+        Desmocollin
+    Hemidesmosome
+        # Cell-ECM (Basement Membrane), use intermediate filament
+        Integrin α6β4
+
+#Cell Division
+G1 Phase
+S Phase
+G2 Phase
+Mitosis
 
 #Somatic Cell Turnover
 Cell Cycle
@@ -190,10 +219,10 @@ Geminin
 p53
 >Vinca Alkaloids
 >Paclitaxel
->+Bleomycin
->+Dactinomycin
+>Bleomycin
+>Dactinomycin
 >Etoposide
->+Doxorubicin
+>Doxorubicin
 
 #Cell Death
 Apoptosis
@@ -202,6 +231,7 @@ Necrosis
 Pyroptosis
     Gasdermin D
 Ferroptosis
+    #Lipid Peroxidation
 
 #Tissue
 
@@ -269,7 +299,53 @@ Ferroptosis
     #Specialized CNT
         Blood
         Bone
+            Epiphysis
+            Metaphysis
+            Diaphysis
+            Compact Bone
+                Osteon
+                Haversian Canal
+                Volkmann's Canal
+            Spongy Bone
+            Osteoprogenitor Cell
+                +Dlx5
+            Osteoblast
+                Osteoid
+                Alkaline Phosphatase
+                M-CSF
+                #RANKL
+            Osteocyte
+                Lacuna
+                Canaliculi
+                #Mechanosensory
+            Osteoclast
+                +Howship's Lacuna
+                Ruffled Border
+                Carbonic Anhydrase
+                +Cathepsin K
+            Woven Bone
+            Lamellar Bone
+            #Ossification
+                Intramembranous Ossification
+                Endochondral Ossification
+            Bone Remodeling
         Cartilage
+            #Chondrogenic Cell
+                Sox9
+            Hyaline Cartilage
+                Costal Cartilage
+                Nasal Cartilage
+                Thyroid Cartilage
+                Epiphyseal Plate
+            Elastic Cartilage
+                Auricle
+                Epiglottis
+                Eustachian Tube
+            Fibrocartilage
+                Meniscus
+                Annulus Fibrosus
+                Pubic Symphysis
+                Articular Labra
 #Neural Tissue
     Neuron
     #Neuron Types
@@ -409,13 +485,14 @@ Adrenal Cortex
     Cholesterol
     P450scc
     Pregnenolone
+    *Addison's Disease
     Zona Glomerulosa
         Aldosterone
         RAAS
             Renin
             Angiotensin I
             Angiotensin Converting Enzyme
-                Captopril
+                >Captopril
             Angiotensin II
         *Conn's Syndrome
     Zona Fasciculata
@@ -464,7 +541,6 @@ Parathyroid Gland
     Parathyroid Chief Cell
         PTH
             RANKL
-                +Cathepsin K
             Osteoprotegerin
                 #Activated by Estrogen
             Hydroxyapatite
@@ -477,7 +553,7 @@ Parathyroid Gland
             +Sodium-Calcium Exchanger (NCX)
             +PMCA
         ++Fibroblast Growth Factor 23
-            +Hypophosphatemic Rickets
+            Hypophosphatemic Rickets
         Calcium-Sensing Receptor
         #Intermittent PTH actually promotes bone formation
             ++Sclerostin
@@ -564,6 +640,14 @@ Islets of Langerhans
     F Cell
         Pancreatic Polypeptide
 
+Cirrhosis
+    Ascites
+    Spider Nevi
+    Palmar Erythema
+    Asterixis
+    Dupuytren's Contracture
+    Clubbed Finger
+
 ### Genetics
 Epigenetics
     Histone Modification
@@ -586,12 +670,28 @@ Epigenetics
 
 Deoxyribonucleic Acid
     Hypoxanthine
+        Inosine
     Adenine
+        Adenosine
     Guanine
+        Guanosine
+            >Acyclovir
     Uracil
+        Uridine
+            Pseudouridine
     Cytosine
+        Cytidine
     Thymine
-        >Zidovudine
+        Thymidine
+            >Zidovudine
+            >Azidothymidine
+    Tandem Repeat
+        Centromere
+        Telomere
+    Interspersed Repeat
+        Short Interspersed Nuclear Element
+        Long Interspersed Nuclear Element
+            +Alu
 
 Replication
     Single-Strand Binding Protein
@@ -628,7 +728,7 @@ Repair
         MutS
         MutL
         MutH
-        Lynch Syndrome
+        *Lynch Syndrome
     Base-Excision Repair
         DNA Glycosylase
         AP Site
@@ -639,12 +739,14 @@ Repair
         Excinuclease
         +UvrD
     Homologous Recombination
-        +Fanconi Anemia
+        +*Fanconi Anemia
     +Non-Homologous End Joining
-        +Ataxia Telangiectasia
+        +*Ataxia Telangiectasia
         #SCID
 
 Transcription
+    Pribnow Box
+    TATA Box
     #DNA Sequence
         Enhancer
         Silencer
@@ -653,11 +755,57 @@ Transcription
         Repressor
     Coding Strand
     Template Strand
-    RNA Polymerase
+    DNA-Dependent RNA Polymerase
          #Doesn't need PRIMER, 5' to 3'
-Translation
+         >Rifamycin
+         >Rifampicin
+         >Streptolydigin
+    RNA Polymerase I
+        #18S rRNA, 5.8S rRNA, 28S rRNA
+    RNA Polymerase II
+        #mRNA, snRNA
+        α-Amanitin
+    RNA Polymerase III
+        #tRNA, 5S rRNA
 
-#Techniques
+Translation
+    Shine-Delgarno Sequence
+    Kozak Sequence
+    Release Factor
+    >Streptomycin
+    >Tetracycline
+    >Chloramphenicol
+    >Erythromycin
+    >Diphtheria Toxin
+        +Corynebacterium Diphtheriae
+
+#Gene Regulation
+Gene Amplification
+    #Xenopus laevis
+Gene Rearrangement
+    #Antibody Light Chain and Heavy Chain
+
+#Transcription Regulation - Epigenetics
+
+#RNA Modification Regulation
+    #RNA splicing
+        Alternative Splicing
+    RNA editing
+        #For instance, CAA to UAA in intestine makes ApoB100 become ApoB48
+
+#RNA Export Regulation
+    #Quality Control - abnormally-spliced and nonsense mutation will not go out
+
+#Translation Regulation
+    #Global Regulation - eIF4E
+    #Specific Regulation - Ferritin Expression is determined by hairpin stability
+
+#RNA decay
+    AU-Rich Element
+    #Transferrin Expression is determined by deadenylation-dependent pathway
+    #miRNA interference
+
+#Molecular Technology
 Sodium Dodecyl Sulfate
     #Destroys Phospholipid Bilayer of the Cell
 Proteinase K
@@ -681,8 +829,11 @@ Northern Blotting
 Western Blotting
     #protein
 Anneal
-Hybridisation
+Hybridization
 Polymerase Chain Reaction
+    Reverse Transcription PCR
+    Quantitative PCR
+    Digital PCR
     Thermus aquaticus
 Sanger Sequencing
 Recombinant DNA
@@ -690,10 +841,90 @@ Recombinant DNA
     Vector
 DNA Cloning
     Dolly The Sheep
+Fluorescent In Situ Hybridization
+Chromosomal Microarray
+Next-Generation Sequencing
+    Whole Exome Sequencing
+    Whole Genome Sequencing
+
+#Non-mendelian
+    Microevolution
+        Non-random Mating
+        Gene flow
+        Genetic Drift
+            Bottleneck Effect
+            Founder Effect
+        Mutation
+        Natural Selection
+            Charles Darwin
+    #Royal Disease
+        Queen Victoria
+        Hemophilia
+    Chi-Square
+        +Null Hypothesis
+    Mosaic
+
+#Cancer Genetics
+    Sporadic
+    Penetrance
+    Hotspot
+    Single Nucleotide Variant
+    Copy Number Variation
+    Indel
+    Oncogene
+        EGFR
+            >Imatinib
+            >Gefitinib
+            >Dacomitinib
+            >Osimertinib
+        KRAS
+        BRAF
+        ERBB2
+            HER2
+            >Trastuzumab
+        BCR::ABL1
+            Philadelphia Chromosome
+            Chronic Myeloid Leukemia
+
+    Tumor Suppressor
+        TP53
+            *Li-Fraumeni Syndrome
+        RB1
+            *Familial Retinoblastoma
+        VHL
+            *Von-Hippel Lindau Disease
+
+    #DNA-repair Gene
+        PARP1
+            #Single Nucleotide Break Fix
+            >Olaparib
+        BRCA1
+            #Hereditary Breast and Ovarian Cancer
+        BRCA2
+        MLH1
+        MSH2
+        MSH6
+        PMS2
+    Knudson's Two Hit Model
+    Driver
+    Passenger
+    Synthetic Lethality
+    Kaplan-Meier Survival Curve
+
+    #ACMG/AMP
 
 Down Syndrome
+    Protuding Tongue
 Edward Syndrome
+    Prominent Occiput
 Patau Syndrome
+    Cleft Lip
+    Cleft Palate
+    Holoprosencephaly
+    Microcephaly
+    Microphthalmia
+    Aplasia Cutis
+    Rocker Bottom Feet
 Turner Syndrome
 Klinefelter Syndrome
 
@@ -734,6 +965,7 @@ Implantation
     Fibrin Coagulum
 Bilaminar Disc
     Amniotic Membrane
+        Amnion
         Amnioblast
     Amniotic Cavity
     Epiblast
@@ -752,6 +984,7 @@ Extraembryonic Mesoderm
     Exocoelomic Cyst
     Secondary Umbilical Vesicle
     Definitive Yolk Sac
+        Vitelline Duct
 Trilaminar Disc
     Ectoderm
         Surface Ectoderm
@@ -845,7 +1078,9 @@ Trilaminar Disc
 ++E-cadherin
 Oropharyngeal Membrane
     Prechordal Plate
+    Mouth
 Cloacal Membrane
+    Anus
 Primitive Streak
 Primitive Groove
 Hensen's Node
@@ -855,10 +1090,39 @@ Hensen's Node
     +Notochordal Plate
     Neurenteric Canal
 Notochord
+    Nucleus Pulposus
 Blood Island
 Vasculogenesis
-    Hemangioma
+    *Hemangioma
 Angiogenesis
+Craniocaudal Folding
+Lateral Folding
+    *Ectopia Cordis
+    *Gastroschitis
+Umbilical Cord
+    Yolk Sac
+    Allantois
+        Urachus
+    #Connecting Stalk
+    Physiological Midgut Herniation
+        *Omphalocele
+        *++Meckel's Diverticulum
+Placenta
+    Anchoring Villi
+    Floating Villi
+    Intervillous Space
+    Cotyledon
+        Placental Septa
+    Chorion
+        Chorioamniotic Membrane
+        Chorion Frondosum
+        Chorion Laeve
+    Endometrium
+        Decidua Basalis
+        Decidua Capsularis
+        Decidua Parietalis
+    Human Chorionic Gonadotropin
+    +Human Placental Lactogen
 
 
 Blastopore
@@ -907,14 +1171,28 @@ Ubiquitin-Proteasome System
         #19S Regulatory Cap
         #20S Core
         #Lys48-linked Polyubiquitin
-        >+Bortezomib
+        >Bortezomib
 
 Glucose
     Hyperglycemia
     Hypoglycemia
 Galactose
 Fructose
+#Glucose Transporters
+    GLUT1
+        #RBC, BBB
+    GLUT2
+        #liver, pancreas, basolateral intestine
+    GLUT3
+        #neuron
+    GLUT4
+        #cardiac muscle, skeletal muscle, adipose tissue
     GLUT5
+        #transports Fructose, luminal intestine
+    SGLT1
+        #transports glucose and galactose, luminal intestine
+    SGLT2
+        #transports glucose back at early PCT
 Glycolysis
     Glucokinase
     Glucose-6-Phosphatase
@@ -923,7 +1201,7 @@ Glycolysis
     PFK-1
     Fructose-2,6-Bisphosphate
     2,3-Bisphosphoglycerate
-        T-State Stabilization
+        #T-State Stabilization
     +Enolase
         Fluoride
     Fast-Twitch Muscle Fiber
@@ -940,6 +1218,8 @@ Cori Cycle
     Pyruvate
     Lactate
     Erythrocyte
+        #Spectrin-Actin
+        #Ankyrin-Band3
 Glycogen
     Glycogenin
     Non-reducing End
@@ -981,6 +1261,26 @@ Alcohol
     #Alcohol Flush Reaction
     >+Disulfiram
         Aldehyde Dehydrogenase
+Krebs Cycle
+    Citrate
+    Isocitrate
+    α-Ketoglutarate
+    Succinyl-CoA
+    Succinate
+    Fumarate
+    Malate
+    Oxaloacetate
+Electron Transport Chain
+    Respiratory Complex I
+        >Metformin
+    Respiratory Complex II
+        Succinate Dehydrogenase
+    Ubiquinone
+    Ubiquinol
+    Respiratory Complex III
+    Cytochrome C
+    Respiratory Complex IV
+    ATP Synthase
 
 Fatty Acid
     Palmitic Acid
@@ -1119,9 +1419,9 @@ Standing Plasma Test
     +Campylobacter Jejuni
 Atropine
 *Tetanus
-    Clostridium Tetani
-    Clostridium Botulinum
     Botulinum Toxin
+    Clostridium Botulinum
+    Clostridium Tetani
     SNARE Complex
 Alpha Helix
 Beta-Pleated Sheet
@@ -1142,14 +1442,23 @@ Prevertebral Ganglia
 Tracheoesophageal Fistula
 Hamstring
 Achilles Tendon
+Iron
+    Transferrin
+    Ferritin
+    Iron-Response Element
+    IRE-Binding Protein
 Copper
+    Lysyl Oxidase
     Ceruloplasmin
     *Menkes Disease
-        Kinky Hair
+        +Kinky Hair
     *+Wilson's Disease
         +Kayser-Fleischer Ring
 *Osteogenesis Imperfecta
+    Brittle Bone
     Blue Sclera
+>Clopidogrel
+    CYP2C19
 
 Vitamin
     Retinol
